@@ -186,7 +186,7 @@ export default function BookingInfo({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {/* Poster Card - Fixed height on desktop */}
-          <Card className="p-3 flex flex-col h-auto lg:h-[65vh] border-2">
+          <Card className="p-3 flex flex-col h-auto lg:h-[65vh] border-2 border-primary">
             <div className="relative rounded-md overflow-hidden mb-2 flex-shrink-0">
               <Image
                 src={concertData.poster}
@@ -203,15 +203,15 @@ export default function BookingInfo({
           </Card>
 
           {/* Main Form Card - Modern Design */}
-          <Card className="p-6 lg:col-span-2 flex flex-col h-auto lg:h-[65vh] relative overflow-hidden border-2">
+          <Card className="p-6 lg:col-span-2 flex flex-col h-auto lg:h-[65vh] relative overflow-hidden border-2 border-primary">
             <div
               ref={scrollContainerRef}
               className="space-y-6 flex-1 overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
             >
               {/* Personal Info Section - Modern Glass Card */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent rounded-2xl" />
-                <div className="relative backdrop-blur-sm bg-background/80 border border-primary/50 rounded-2xl p-5 space-y-4">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent rounded-2xl " />
+                <div className="relative backdrop-blur-sm bg-background/80 border border-primary rounded-2xl p-5 space-y-4 border-2">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
                     <h3 className="text-lg font-bold text-foreground">
@@ -301,7 +301,7 @@ export default function BookingInfo({
               {/* Zone Selection Section - Premium Design */}
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 rounded-2xl" />
-                <div className="relative backdrop-blur-sm bg-background/80 border border-primary/50 rounded-2xl p-5 space-y-4">
+                <div className="relative backdrop-blur-sm bg-background/80 border border-primary rounded-2xl p-5 space-y-4 border-2">
                   <div className="flex flex-wrap items-center gap-4 justify-between">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />

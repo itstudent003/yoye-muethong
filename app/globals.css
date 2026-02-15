@@ -186,3 +186,69 @@ body {
 .animate-marquee {
   animation: marquee 32s linear infinite;
 }
+
+@keyframes border-spin {
+  0% {
+    --border-angle: 0deg;
+  }
+  100% {
+    --border-angle: 360deg;
+  }
+}
+
+@keyframes bounce-left {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-8px);
+  }
+}
+
+@keyframes bounce-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.btn-glow-border {
+  --border-angle: 0deg;
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--background), var(--background)) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        #feae97,
+        #fe8516,
+        #feae97,
+        #ffd700,
+        #feae97
+      )
+      border-box;
+  animation: border-spin 3s linear infinite;
+}
+
+.btn-glow-border:hover {
+  animation-duration: 1.5s;
+  box-shadow: 0 0 16px rgba(254, 133, 22, 0.35);
+}
+
+.animate-bounce-left {
+  animation: bounce-left 1.5s ease-in-out infinite;
+}
+
+.animate-bounce-right {
+  animation: bounce-right 1.5s ease-in-out infinite;
+}
