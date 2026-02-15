@@ -42,76 +42,9 @@
   font-display: swap;
 }
 
-/* :root {
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.8253 0.0999 36.7265);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --gradient-start: #feac97;
-  --gradient-end: #fc8800;
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --font-sans: "Inter", sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: monospace;
-  --radius: 0.625rem;
-  --shadow-x: 0px;
-  --shadow-y: 1px;
-  --shadow-blur: 4px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.02;
-  --shadow-color: hsl(13, 10%, 10%);
-  --shadow-2xs: 0px 1px 4px 0px hsl(13 10% 10% / 0.01);
-  --shadow-xs: 0px 1px 4px 0px hsl(13 10% 10% / 0.01);
-  --shadow-sm:
-    0px 1px 4px 0px hsl(13 10% 10% / 0.02),
-    0px 1px 2px -1px hsl(13 10% 10% / 0.02);
-  --shadow:
-    0px 1px 4px 0px hsl(13 10% 10% / 0.02),
-    0px 1px 2px -1px hsl(13 10% 10% / 0.02);
-  --shadow-md:
-    0px 1px 4px 0px hsl(13 10% 10% / 0.02),
-    0px 2px 4px -1px hsl(13 10% 10% / 0.02);
-  --shadow-lg:
-    0px 1px 4px 0px hsl(13 10% 10% / 0.02),
-    0px 4px 6px -1px hsl(13 10% 10% / 0.02);
-  --shadow-xl:
-    0px 1px 4px 0px hsl(13 10% 10% / 0.02),
-    0px 8px 10px -1px hsl(13 10% 10% / 0.02);
-  --shadow-2xl: 0px 1px 4px 0px hsl(13 10% 10% / 0.05);
-  --tracking-normal: -0.01em;
-  --spacing: 0.25rem;
-  --background: oklch(1 0 0);
-  --foreground: #fc8800;
-} */
-
 :root {
   /* Core Colors */
-  --background: oklch(1 0 0);
+  --background: oklch(0.9953 0.0025 48.72);
   --foreground: oklch(0.25 0.05 35); /* น้ำตาลเข้มสำหรับตัวหนังสือ */
 
   /* สีหลักใหม่ที่คุณเลือก */
@@ -224,4 +157,32 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-slow {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 32s linear infinite;
 }

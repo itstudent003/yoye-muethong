@@ -4,10 +4,14 @@ import StepBooking from "./stepBooking";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export default function Condition() {
+interface ConditionProps {
+  readonly onNext: () => void;
+}
+
+export default function Condition({ onNext }: ConditionProps) {
   return (
-    <div className="min-h-screen ">
-      <div className="max-w-5xl mx-auto space-y-1">
+    <div className="min-h-screen py-4 px-4">
+      <div className="max-w-6xl mx-auto space-y-3">
         <StepBooking currentStep={1} />
 
         <div className="bg-white rounded-lg shadow-xl border border-border/60 p-6">
@@ -123,7 +127,10 @@ export default function Condition() {
                 ข้าพเจ้ายอมรับเงื่อนไข และพร้อมดำเนินการต่อ
               </span>
             </label>
-            <Button className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 shadow-lg">
+            <Button
+              className="w-full bg-primary font-semibold text-white py-3 rounded-md hover:bg-primary/90 shadow-lg"
+              onClick={onNext}
+            >
               ดำเนินการต่อ
             </Button>
           </div>

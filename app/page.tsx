@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +46,17 @@ const cards = [
     iconBg: "bg-yellow-100",
     iconColor: "text-yellow-500",
   },
+];
+
+const partners = [
+  { name: "All Ticket", src: "/support/allticket.png" },
+  { name: "Counter Service", src: "/support/counterservice.png" },
+  { name: "Event Pop", src: "/support/eventpop.png" },
+  { name: "IHaveTicket", src: "/support/ihaveticket.png" },
+  { name: "PB Team", src: "/support/pbteam.jpg" },
+  { name: "Thai Ticket Major", src: "/support/thaiticket.png" },
+  { name: "Ticket Melon", src: "/support/ticketmelon.jpg" },
+  { name: "Zip Event", src: "/support/zipevent.jpg" },
 ];
 
 function RotatingCards() {
@@ -261,6 +273,81 @@ export default function Home() {
 
           {/* Right side - rotating cards */}
           <RotatingCards />
+        </div>
+      </section>
+
+      {/* Partner Section */}
+      <section className="py-4 px-4">
+        <style jsx>{`
+          @keyframes marquee {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(
+                calc(-50% - 1rem)
+              ); /* 1rem คือครึ่งหนึ่งของ gap-8 */
+            }
+          }
+        `}</style>
+        <div className="max-w-5xl mx-auto text-center space-y-3 mb-10">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="text-sm font-bold uppercase tracking-[0.3em] text-primary"
+          >
+            ผู้จำหน่ายบัตรที่เรารับจอง
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl md:text-4xl font-black text-foreground"
+          >
+            พาร์ตเนอร์ที่ไว้ใจเรา
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="text-muted-foreground max-w-2xl mx-auto"
+          >
+            เราเชื่อมต่อกับแพลตฟอร์มจำหน่ายบัตรชั้นนำ
+            เพื่อให้คุณเข้าถึงบัตรที่ต้องการได้เร็วกว่าและมั่นใจได้ในทุกขั้นตอน
+          </motion.p>
+        </div>
+        <div className="relative overflow-hidden group">
+          {" "}
+          {/* เพิ่ม group ตรงนี้ถ้าอยากให้หยุดเมื่อ hover */}
+          {/* Gradient Overlays */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
+          <div
+            className="flex flex-nowrap gap-8 w-max hover:[animation-play-state:paused]" // หยุดเมื่อเอาเมาส์วาง (Optional)
+            style={{
+              animation: "marquee 32s linear infinite",
+            }}
+          >
+            {/* Render partners 2 รอบ (หรือ 3 รอบถ้า partners มีน้อยมาก) */}
+            {[...partners, ...partners].map((partner, index) => (
+              <div
+                key={`${partner.name}-${index}`}
+                className="relative flex-shrink-0 flex items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-md border border-border/60 bg-white shadow-md"
+              >
+                <Image
+                  src={partner.src}
+                  alt={partner.name}
+                  width={120}
+                  height={120}
+                  className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

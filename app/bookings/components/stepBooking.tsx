@@ -6,7 +6,7 @@ interface StepBookingProps {
   currentStep: number;
 }
 
-const steps = [
+export const steps = [
   { id: 1, label: "เงื่อนไข" },
   { id: 2, label: "เลือกงาน" },
   { id: 3, label: "ข้อมูล" },
@@ -15,7 +15,7 @@ const steps = [
 
 export default function StepBooking({ currentStep }: StepBookingProps) {
   return (
-    <div className="w-full py-8 px-4">
+    <div className="w-full py-2 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between relative">
           {/* Progress line */}

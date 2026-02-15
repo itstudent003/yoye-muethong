@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar/navbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "Yoye Muethong",
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Navbar />
-        {children}
-        <Footer />
+        <TooltipProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </TooltipProvider>
       </body>
     </html>
   );
