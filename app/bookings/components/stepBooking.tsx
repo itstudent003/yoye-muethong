@@ -10,7 +10,7 @@ export const steps = [
   { id: 1, label: "เงื่อนไข" },
   { id: 2, label: "เลือกงาน" },
   { id: 3, label: "ข้อมูล" },
-  { id: 4, label: "ชำระเงิน" },
+  { id: 4, label: "ชำระเงินมัดจำ" },
 ];
 
 export default function StepBooking({ currentStep }: StepBookingProps) {

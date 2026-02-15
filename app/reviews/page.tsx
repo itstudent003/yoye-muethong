@@ -20,7 +20,6 @@ type Review = {
   customerName: string;
   image: string;
   date: string;
-  rating: number;
 };
 
 const mockReviews: Review[] = Array.from({ length: 24 }, (_, i) => ({
@@ -29,7 +28,6 @@ const mockReviews: Review[] = Array.from({ length: 24 }, (_, i) => ({
   customerName: `Customer ${i + 1}`,
   image: `/con.jpeg`,
   date: `${15 + (i % 15)} ม.ค. 2569`,
-  rating: 4 + (i % 2),
 }));
 
 const ITEMS_PER_PAGE = 12;
@@ -187,16 +185,6 @@ export default function ReviewsPage() {
                     <span className="text-xs text-muted-foreground">
                       {review.date}
                     </span>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <span
-                          key={i}
-                          className={`text-xs ${i < review.rating ? "text-amber-400" : "text-muted"}`}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </Card>
@@ -280,16 +268,6 @@ export default function ReviewsPage() {
                   <p className="text-muted-foreground">
                     {selectedReview.customerName}
                   </p>
-                </div>
-                <div className="flex gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={`text-2xl ${i < selectedReview.rating ? "text-amber-400" : "text-muted"}`}
-                    >
-                      ★
-                    </span>
-                  ))}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   วันที่: {selectedReview.date}

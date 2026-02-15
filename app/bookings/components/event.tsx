@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import {
   Search,
@@ -140,10 +141,13 @@ export default function Event({ onBack, onSelect }: EventProps) {
               >
                 {/* Poster */}
                 <div className="">
-                  <img
+                  <Image
                     src="/con.jpeg"
                     alt={event.name}
-                    className="object-cover"
+                    width={600}
+                    height={400}
+                    className="object-cover w-full h-auto"
+                    priority={index === 0}
                   />
                 </div>
 
@@ -196,107 +200,122 @@ export default function Event({ onBack, onSelect }: EventProps) {
           open={!!selectedEvent}
           onOpenChange={(open) => !open && setSelectedEvent(null)}
         >
-          <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-5xl max-h-[90vh] p-0 sm:p-0">
             {selectedEvent && (
-              <>
-                <DialogHeader className="border-b py-4">
-                  <DialogTitle className="text-2xl font-black text-foreground pr-8">
+              <div className="flex h-full max-h-[90vh] flex-col">
+                <DialogHeader className="border-b px-6 py-4">
+                  <DialogTitle className="text-2xl font-black text-foreground pr-4">
                     {selectedEvent.name}
                   </DialogTitle>
                 </DialogHeader>
 
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-4 text-foreground">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          รอบการแสดง
-                        </p>
-                        <p className="font-semibold">
-                          {selectedEvent.showTime}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Ticket className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          ราคาบัตร / โซน
-                        </p>
-                        <p className="font-semibold">
-                          {selectedEvent.ticketInfo}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Receipt className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          ค่ากด / ต่อใบ
-                        </p>
-                        <p className="font-semibold">
-                          {selectedEvent.serviceFee}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <StickyNote className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          หมายเหตุ
-                        </p>
-                        <p className="font-semibold">{selectedEvent.note}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="">
-                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                      <Tag className="w-5 h-5 text-primary" />
-                      โซนและราคา
-                    </h3>
-                    <div className="space-y-2">
-                      {selectedEvent.zones.map((zone, i) => (
-                        <div
-                          key={i}
-                          className={`flex items-center justify-between p-2 rounded-xl border-2 ${
-                            zone.available
-                              ? "border-green-200 bg-green-50"
-                              : "border-gray-200 bg-gray-50"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-3 h-3 rounded-full ${
-                                zone.available ? "bg-green-500" : "bg-gray-400"
-                              }`}
-                            />
-                            <span className="font-semibold text-foreground">
-                              {zone.name}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-primary">
-                              ฿{zone.price.toLocaleString()}
-                            </p>
-                            <p
-                              className={`text-xs ${
-                                zone.available
-                                  ? "text-green-600"
-                                  : "text-gray-500"
-                              }`}
-                            >
-                              {zone.available ? "เปิดรับ" : "เต็มแล้ว"}
-                            </p>
-                          </div>
+                <div className="flex-1 overflow-y-auto px-6 py-6">
+                  <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+                    <div className="space-y-4 text-foreground">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            รอบการแสดง
+                          </p>
+                          <p className="font-semibold">
+                            {selectedEvent.showTime}
+                          </p>
                         </div>
-                      ))}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Ticket className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            ราคาบัตร / โซน
+                          </p>
+                          <p className="font-semibold">
+                            {selectedEvent.ticketInfo}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Ticket className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            ราคาบัตร / โซน
+                          </p>
+                          <p className="font-semibold">
+                            {selectedEvent.ticketInfo}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Receipt className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            ค่ากด / ต่อใบ
+                          </p>
+                          <p className="font-semibold">
+                            {selectedEvent.serviceFee}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <StickyNote className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            หมายเหตุ
+                          </p>
+                          <p className="font-semibold">{selectedEvent.note}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-primary" />
+                        โซนและราคา
+                      </h3>
+                      <div className="space-y-3">
+                        {selectedEvent.zones.map((zone, i) => (
+                          <div
+                            key={i}
+                            className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-xl border-2 ${
+                              zone.available
+                                ? "border-green-200 bg-green-50"
+                                : "border-gray-200 bg-gray-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-3 h-3 rounded-full ${
+                                  zone.available
+                                    ? "bg-green-500"
+                                    : "bg-gray-400"
+                                }`}
+                              />
+                              <span className="font-semibold text-foreground">
+                                {zone.name}
+                              </span>
+                            </div>
+                            <div className="text-left sm:text-right">
+                              <p className="text-xl font-bold text-primary">
+                                ฿{zone.price.toLocaleString()}
+                              </p>
+                              <p
+                                className={`text-xs ${
+                                  zone.available
+                                    ? "text-green-600"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {zone.available ? "เปิดรับ" : "เต็มแล้ว"}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <DialogFooter className="pt-4">
+                <DialogFooter className="border-t px-6 py-4">
                   <Button
                     className="w-full"
                     onClick={() => {
@@ -309,7 +328,7 @@ export default function Event({ onBack, onSelect }: EventProps) {
                     เลือกงานนี้
                   </Button>
                 </DialogFooter>
-              </>
+              </div>
             )}
           </DialogContent>
         </Dialog>

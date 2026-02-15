@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useRef, useState } from "react";
 import StepBooking from "./stepBooking";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,6 +10,19 @@ interface ConditionProps {
 }
 
 export default function Condition({ onNext }: ConditionProps) {
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const threshold = 10;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+      setHasScrolledToBottom(true);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen py-4 px-4">
       <div className="max-w-6xl mx-auto space-y-3">
@@ -24,7 +38,11 @@ export default function Condition({ onNext }: ConditionProps) {
             </p>
           </div>
 
-          <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 text-sm text-muted-foreground">
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="space-y-4 max-h-[320px] overflow-y-auto pr-2 text-sm text-muted-foreground"
+          >
             <div className="bg-slate-50 rounded-lg p-4 space-y-3">
               <div>
                 <p className="font-semibold">📄 ประกาศสำคัญ</p>
@@ -120,9 +138,22 @@ export default function Condition({ onNext }: ConditionProps) {
             </div>
           </div>
 
+          {!hasScrolledToBottom && (
+            <p className="text-xs text-muted-foreground text-center mt-2 animate-pulse">
+              กรุณาเลื่อนอ่านเงื่อนไขให้ครบก่อน
+            </p>
+          )}
+
           <div className="mt-6 bg-gradient-to-r from-primary/10 to-emerald-10 rounded-2xl border border-border/60 p-5 flex flex-col gap-4">
-            <label className="flex items-center gap-3">
-              <Checkbox className="h-5 w-5 bg-primary" />
+            <label
+              className={`flex items-center gap-3 ${!hasScrolledToBottom ? "opacity-50 pointer-events-none" : "cursor-pointer"}`}
+            >
+              <Checkbox
+                className="h-5 w-5 bg-primary"
+                checked={accepted}
+                onCheckedChange={(checked) => setAccepted(checked === true)}
+                disabled={!hasScrolledToBottom}
+              />
               <span className="text-sm text-foreground font-semibold">
                 ข้าพเจ้ายอมรับเงื่อนไข และพร้อมดำเนินการต่อ
               </span>
@@ -130,6 +161,7 @@ export default function Condition({ onNext }: ConditionProps) {
             <Button
               className="w-full bg-primary font-semibold text-white py-3 rounded-md hover:bg-primary/90 shadow-lg"
               onClick={onNext}
+              disabled={!accepted}
             >
               ดำเนินการต่อ
             </Button>

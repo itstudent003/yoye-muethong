@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useId } from "react";
+import Image from "next/image";
 import StepBooking from "./stepBooking";
 import { BackStep } from "./backStep";
 import { Button } from "@/components/ui/button";
@@ -10,11 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { SingleCombobox } from "@/components/ui/combobox";
 import type { BookingEvent } from "./event";
 import { RefreshCcw, ArrowDown } from "lucide-react";
+import { zoneStatus } from "../types/enum";
+import type { BookingFormData } from "../page";
 
 interface BookingInfoProps {
   readonly event: BookingEvent;
   readonly onBack: () => void;
   readonly onNext: () => void;
+  readonly savedForm?: BookingFormData | null;
+  readonly onFormChange?: (form: BookingFormData) => void;
 }
 
 const initialForm = {
@@ -38,6 +43,7 @@ type ZoneOption = {
   name: string;
   remaining: number;
   ticketPrice: number;
+  status: zoneStatus;
 };
 
 type ConcertData = {
@@ -59,49 +65,55 @@ const mockConcertData: ConcertData = {
       name: "25 เมษายน 2569",
       time: new Date("2026-01-07T19:00:00+07:00").getTime(),
       zones: [
-        { id: 1, name: "VIP Standing", remaining: 24, ticketPrice: 8500 },
-        { id: 2, name: "Standing", remaining: 42, ticketPrice: 5500 },
-        { id: 9, name: "Standing", remaining: 42, ticketPrice: 5500 },
-        { id: 10, name: "Standing", remaining: 42, ticketPrice: 5500 },
-        { id: 11, name: "Standing", remaining: 42, ticketPrice: 5500 },
-      ],
-    },
-    {
-      id: 102,
-      name: "26 เมษายน 2569",
-      time: new Date("2026-01-07T19:00:00+07:00").getTime(),
-      zones: [
-        { id: 3, name: "Seat A", remaining: 30, ticketPrice: 6300 },
-        { id: 4, name: "Seat B", remaining: 38, ticketPrice: 5200 },
-      ],
-    },
-    {
-      id: 201,
-      name: "27 เมษายน 2569",
-      time: new Date("2026-01-08T18:00:00+07:00").getTime(),
-      zones: [
-        { id: 5, name: "Seat A", remaining: 18, ticketPrice: 6500 },
-        { id: 6, name: "Seat B", remaining: 26, ticketPrice: 4700 },
-      ],
-    },
-    {
-      id: 202,
-      name: "28 เมษายน 2569",
-      time: new Date("2026-01-08T18:00:00+07:00").getTime(),
-      zones: [
-        { id: 7, name: "Seat C", remaining: 12, ticketPrice: 4300 },
-        { id: 8, name: "Seat D", remaining: 34, ticketPrice: 3800 },
+        {
+          id: 1,
+          name: "VIP Standing",
+          remaining: 24,
+          ticketPrice: 8500,
+          status: zoneStatus.AVAILABLE,
+        },
+        {
+          id: 2,
+          name: "Standing",
+          remaining: 42,
+          ticketPrice: 5500,
+          status: zoneStatus.AVAILABLE,
+        },
+        {
+          id: 9,
+          name: "Standing",
+          remaining: 0,
+          ticketPrice: 5500,
+          status: zoneStatus.TEMP_FULL,
+        },
+        {
+          id: 10,
+          name: "Standing",
+          remaining: 0,
+          ticketPrice: 5500,
+          status: zoneStatus.SOLD_OUT,
+        },
+        {
+          id: 11,
+          name: "Standing",
+          remaining: 42,
+          ticketPrice: 5500,
+          status: zoneStatus.AVAILABLE,
+        },
       ],
     },
   ],
 };
 
 export default function BookingInfo({
-  event,
+  event: _event,
   onBack,
   onNext,
+  savedForm,
+  onFormChange,
 }: BookingInfoProps) {
-  const [form, setForm] = useState(initialForm);
+  const concertData = mockConcertData;
+  const [form, setForm] = useState(() => savedForm ?? initialForm);
   const [isZoneResetting, setIsZoneResetting] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -142,11 +154,15 @@ export default function BookingInfo({
     });
   };
 
+  useEffect(() => {
+    onFormChange?.(form);
+  }, [form, onFormChange]);
+
   const updateField = (key: keyof typeof form, value: string | number) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const selectedShowTime = mockConcertData.showTime.find(
+  const selectedShowTime = concertData.showTime.find(
     (st) => st.id.toString() === form.showTimeId,
   );
 
@@ -154,9 +170,7 @@ export default function BookingInfo({
     (z) => z.id.toString() === form.zoneId,
   );
 
-  const totalPrice = selectedZone
-    ? selectedZone.ticketPrice * form.ticketCount
-    : 0;
+  const depositPrice = form.ticketCount * 100;
 
   const canProceed =
     Boolean(form.firstName.trim()) &&
@@ -174,14 +188,17 @@ export default function BookingInfo({
           {/* Poster Card - Fixed height on desktop */}
           <Card className="p-3 flex flex-col h-auto lg:h-[65vh] border-2">
             <div className="relative rounded-md overflow-hidden mb-2 flex-shrink-0">
-              <img
-                src={mockConcertData.poster}
-                alt={mockConcertData.name}
+              <Image
+                src={concertData.poster}
+                alt={concertData.name}
+                width={600}
+                height={750}
                 className="w-full aspect-[4/5] object-cover"
+                priority
               />
             </div>
             <h2 className="text-base font-bold text-foreground leading-tight">
-              {mockConcertData.name}
+              {concertData.name}
             </h2>
           </Card>
 
@@ -242,12 +259,12 @@ export default function BookingInfo({
                     </div>
 
                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                      <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                         รอบการแสดง
                         <span className="text-destructive">*</span>
-                      </label>
+                      </div>
                       <SingleCombobox
-                        options={mockConcertData.showTime.map((st) => ({
+                        options={concertData.showTime.map((st) => ({
                           value: st.id.toString(),
                           label: st.name,
                         }))}
@@ -285,7 +302,7 @@ export default function BookingInfo({
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 rounded-2xl" />
                 <div className="relative backdrop-blur-sm bg-background/80 border border-primary/50 rounded-2xl p-5 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center gap-4 justify-between">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
                       <h3 className="text-lg font-bold text-foreground">
@@ -295,7 +312,7 @@ export default function BookingInfo({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                      className="h-9 gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300 w-full sm:w-auto"
                       onClick={() => {
                         setIsZoneResetting(true);
                         setForm((prev) => ({
@@ -313,15 +330,15 @@ export default function BookingInfo({
                     </Button>
                   </div>
 
-                  <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl">
-                    <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                    <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
-                      เลือกได้เพียงโซนเดียวต่อการจอง 1 รอบ
+                  <div className="flex flex-wrap items-center gap-2   rounded-xl">
+                    <div className="h-2 w-2 rounded-full animate-pulse" />
+                    <p className="text-xs font-medium text-gray-500">
+                      * เลือกได้เพียงโซนเดียวต่อการจอง 1 รอบ
                     </p>
                   </div>
 
                   {/* Modern Legend with Gradient Pills */}
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-start gap-3 flex-wrap">
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/20">
                       <div className="w-2 h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50" />
                       <span className="text-xs font-semibold text-green-700 dark:text-green-400">
@@ -375,12 +392,12 @@ export default function BookingInfo({
                         let borderColor = "border-green-500/20";
                         let bgGradient = "from-green-500/5 to-transparent";
 
-                        if (zone.remaining === 0) {
+                        if (zone.status === zoneStatus.SOLD_OUT) {
                           statusColor = "bg-red-500";
                           statusShadow = "shadow-red-500/50";
                           borderColor = "border-red-500/20";
                           bgGradient = "from-red-500/5 to-transparent";
-                        } else if (zone.remaining <= 10) {
+                        } else if (zone.status === zoneStatus.TEMP_FULL) {
                           statusColor = "bg-orange-500";
                           statusShadow = "shadow-orange-500/50";
                           borderColor = "border-orange-500/20";
@@ -411,7 +428,7 @@ export default function BookingInfo({
                             )}
 
                             <div className="relative p-4 backdrop-blur-sm bg-background/50">
-                              <div className="flex items-center justify-between gap-4">
+                              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                 {/* Zone Info */}
                                 <div className="flex-1 min-w-0 space-y-2">
                                   <div className="flex items-center gap-3">
@@ -423,7 +440,7 @@ export default function BookingInfo({
                                     </h3>
                                   </div>
 
-                                  <div className="flex items-center gap-4">
+                                  <div className="flex flex-wrap items-center gap-3">
                                     <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
                                       <p className="font-bold text-base text-primary">
                                         ฿{zone.ticketPrice.toLocaleString()}
@@ -439,7 +456,7 @@ export default function BookingInfo({
                                 </div>
 
                                 {/* Counter Controls - Modern Style */}
-                                <div className="flex items-center gap-2 flex-shrink-0 p-2 rounded-xl bg-muted/50 border border-border">
+                                <div className="flex items-center gap-2 flex-shrink-0 p-2 rounded-xl bg-muted/50 border border-border w-full md:w-auto">
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -469,7 +486,7 @@ export default function BookingInfo({
                                     </svg>
                                   </Button>
 
-                                  <div className="min-w-[3ch] px-3 py-1.5 rounded-lg bg-background border border-border">
+                                  <div className="min-w-[3ch] flex-1 text-center px-3 py-1.5 rounded-lg bg-background border border-border">
                                     <span className="text-xl font-bold text-center block">
                                       {ticketCount}
                                     </span>
@@ -540,34 +557,6 @@ export default function BookingInfo({
                   </div>
                 </div>
               </div>
-
-              {/* Price Summary - Enhanced */}
-              {selectedZone && (
-                <div className="relative overflow-hidden rounded-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5" />
-                  <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          ยอดรวมทั้งหมด
-                        </div>
-                        <div className="text-3xl font-black text-primary">
-                          ฿{totalPrice.toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <div className="text-xs text-muted-foreground">
-                          {form.ticketCount} ใบ × ฿
-                          {selectedZone.ticketPrice.toLocaleString()}
-                        </div>
-                        <div className="text-xs font-semibold text-primary">
-                          {selectedZone.name}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Scroll to Bottom Button */}
@@ -585,8 +574,37 @@ export default function BookingInfo({
               </>
             )}
 
-            {/* Submit Button - Fixed at bottom */}
-            <div className="mt-3 pt-3 border-t flex-shrink-0">
+            {/* Price Summary & Submit */}
+            <div className="mt-3 pt-3 border-t flex-shrink-0 space-y-3">
+              {selectedZone && (
+                <div className="relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-2xl" />
+                  <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30 rounded-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          ยอดมัดจำรวม
+                        </div>
+                        <div className="text-3xl font-black text-primary">
+                          ฿{depositPrice.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="text-right space-y-1">
+                        <div className="text-xs text-muted-foreground font-medium">
+                          {selectedZone.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          มัดจำ {form.ticketCount} ใบ × ฿100
+                        </div>
+                        <div className="text-sm font-semibold text-primary">
+                          ฿{depositPrice.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <Button
                 className="w-full h-10"
                 disabled={!canProceed}

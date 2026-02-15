@@ -20,6 +20,7 @@ import {
   Heart,
 } from "lucide-react";
 import Loading from "@/components/Loading";
+import { useRouter } from "next/navigation";
 
 const cards = [
   {
@@ -61,17 +62,15 @@ const partners = [
 
 function RotatingCards() {
   const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
 
   const nextCard = useCallback(() => {
     setIndex((prev) => (prev + 1) % cards.length);
   }, []);
 
   useEffect(() => {
-    if (isPaused) return;
     const interval = setInterval(nextCard, 2000);
     return () => clearInterval(interval);
-  }, [nextCard, isPaused]);
+  }, [nextCard]);
 
   const getCardStyle = (i: number) => {
     const total = cards.length;
@@ -100,16 +99,14 @@ function RotatingCards() {
 
   return (
     <motion.div
-      className="relative z-10 hidden md:flex items-center justify-center"
+      className="relative z-10 flex items-center justify-center"
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
     >
       <div
-        className="relative w-full max-w-5xl h-[420px] flex items-center justify-center"
+        className="relative w-full max-w-5xl h-[360px] sm:h-[420px] flex items-center justify-center"
         style={{ perspective: "1200px" }}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
       >
         <div
           className="relative w-full h-full flex items-center justify-center"
@@ -187,6 +184,7 @@ function RotatingCards() {
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const id = setTimeout(() => setIsLoading(false), 1000);
@@ -204,7 +202,7 @@ export default function Home() {
           <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 items-center">
           <motion.div
             className="z-10"
             initial={{ opacity: 0, x: -40 }}
@@ -263,6 +261,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   className="h-14 px-8 rounded-2xl text-lg font-bold shadow-lg"
+                  onClick={() => router.push("/bookings")}
                 >
                   จองคิวตอนนี้
                   <ChevronRight className="ml-2 h-5 w-5" />
@@ -272,82 +271,153 @@ export default function Home() {
           </motion.div>
 
           {/* Right side - rotating cards */}
-          <RotatingCards />
+          <div className="mt-10 lg:mt-0">
+            <RotatingCards />
+          </div>
         </div>
       </section>
 
-      {/* Partner Section */}
-      <section className="py-4 px-4">
-        <style jsx>{`
-          @keyframes marquee {
-            from {
-              transform: translateX(0);
-            }
-            to {
-              transform: translateX(
-                calc(-50% - 1rem)
-              ); /* 1rem คือครึ่งหนึ่งของ gap-8 */
-            }
-          }
-        `}</style>
-        <div className="max-w-5xl mx-auto text-center space-y-3 mb-10">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="text-sm font-bold uppercase tracking-[0.3em] text-primary"
-          >
-            ผู้จำหน่ายบัตรที่เรารับจอง
-          </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-black text-foreground"
-          >
-            พาร์ตเนอร์ที่ไว้ใจเรา
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="text-muted-foreground max-w-2xl mx-auto"
-          >
-            เราเชื่อมต่อกับแพลตฟอร์มจำหน่ายบัตรชั้นนำ
-            เพื่อให้คุณเข้าถึงบัตรที่ต้องการได้เร็วกว่าและมั่นใจได้ในทุกขั้นตอน
-          </motion.p>
+      {/* Queue Volume Section */}
+      <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-orange-100/40 blur-3xl" />
+          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
         </div>
-        <div className="relative overflow-hidden group">
-          {" "}
-          {/* เพิ่ม group ตรงนี้ถ้าอยากให้หยุดเมื่อ hover */}
-          {/* Gradient Overlays */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
-          <div
-            className="flex flex-nowrap gap-8 w-max hover:[animation-play-state:paused]" // หยุดเมื่อเอาเมาส์วาง (Optional)
-            style={{
-              animation: "marquee 32s linear infinite",
-            }}
+
+        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            {/* Render partners 2 รอบ (หรือ 3 รอบถ้า partners มีน้อยมาก) */}
-            {[...partners, ...partners].map((partner, index) => (
-              <div
-                key={`${partner.name}-${index}`}
-                className="relative flex-shrink-0 flex items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-md border border-border/60 bg-white shadow-md"
-              >
-                <Image
-                  src={partner.src}
-                  alt={partner.name}
-                  width={120}
-                  height={120}
-                  className="w-20 h-20 md:w-24 md:h-24 object-contain"
-                />
+            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+              <Monitor className="w-4 h-4" /> ระบบรันคิวจำนวนมาก
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
+              รันคิวรวม{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
+                500+ จอ
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              เพิ่มโอกาสเข้าหน้าซื้อเร็วกว่าใช้เครื่องเดียวหลายเท่า
+              ด้วยระบบรันคิวพร้อมกันทั้งร้าน ไม่พลาดทุกรอบการขาย
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Monitor className="w-4 h-4 text-orange-500" />
+                </div>
+                500+ จอพร้อมกัน
               </div>
-            ))}
-          </div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <BadgeCheck className="w-4 h-4 text-green-500" />
+                </div>
+                เพิ่มโอกาสได้บัตรสูงขึ้น
+              </div>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative flex items-center justify-center"
+          >
+            <div className="grid grid-cols-5 gap-3">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <motion.div
+                  key={`screen-${i}`}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
+                  className="w-14 h-10 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
+                >
+                  <Monitor className="w-5 h-5 text-orange-400" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Pro Team Section */}
+      <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-blue-100/40 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        </div>
+
+        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative flex items-center justify-center order-2 lg:order-1"
+          >
+            <div className="grid grid-cols-6 gap-2">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <motion.div
+                  key={`person-${i}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.05 + i * 0.03, duration: 0.3 }}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-200/60 flex items-center justify-center shadow-sm"
+                >
+                  <UsersRound className="w-5 h-5 text-blue-400" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="order-1 lg:order-2"
+          >
+            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+              <UsersRound className="w-4 h-4" /> ทีมกดมืออาชีพ
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
+              ทีมกดจริง{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
+                30 คน
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              แบ่งหน้าที่ชัดเจน ไม่รับคิวซ้อน ไม่รับคิวเกิน กด 1:1
+              มีแอดมินคอยตอบตลอดเวลา
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: Eye, text: "เฝ้ารอหลุดจนกว่าบัตรจะหมดจริง" },
+                { icon: Heart, text: "ถ้ายังมีโอกาส เรายังไม่หยุดกด" },
+                { icon: Ticket, text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง" },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.text}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <span className="text-foreground font-medium">
+                    {item.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -428,142 +498,73 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="relative py-24 px-4 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-orange-100/40 blur-3xl" />
-          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+      {/* Partner Section */}
+      <section className="py-4 px-4">
+        <style jsx>{`
+          @keyframes marquee {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(
+                calc(-50% - 1rem)
+              ); /* 1rem คือครึ่งหนึ่งของ gap-8 */
+            }
+          }
+        `}</style>
+        <div className="max-w-5xl mx-auto text-center space-y-3 mb-10">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="text-sm font-bold uppercase tracking-[0.3em] text-primary"
+          >
+            ผู้จำหน่ายบัตรที่เรารับจอง
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl md:text-4xl font-black text-foreground"
+          >
+            พาร์ตเนอร์ที่ไว้ใจเรา
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="text-muted-foreground max-w-2xl mx-auto"
+          >
+            เราเชื่อมต่อกับแพลตฟอร์มจำหน่ายบัตรชั้นนำ
+            เพื่อให้คุณเข้าถึงบัตรที่ต้องการได้เร็วกว่าและมั่นใจได้ในทุกขั้นตอน
+          </motion.p>
         </div>
-
-        <div className="max-w-6xl mx-auto space-y-24">
-          {/* Feature 1 — High Queue Volume */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
-                <Monitor className="w-4 h-4" /> ระบบรันคิวจำนวนมาก
-              </span>
-              <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
-                รันคิวรวม{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
-                  500+ จอ
-                </span>
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                เพิ่มโอกาสเข้าหน้าซื้อเร็วกว่าใช้เครื่องเดียวหลายเท่า
-                ด้วยระบบรันคิวพร้อมกันทั้งร้าน ไม่พลาดทุกรอบการขาย
-              </p>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                    <Monitor className="w-4 h-4 text-orange-500" />
-                  </div>
-                  500+ จอพร้อมกัน
-                </div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <BadgeCheck className="w-4 h-4 text-green-500" />
-                  </div>
-                  เพิ่มโอกาสได้บัตรสูงขึ้น
-                </div>
+        <div className="relative overflow-hidden group">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
+          <div
+            className="flex flex-nowrap gap-8 w-max hover:[animation-play-state:paused]"
+            style={{
+              animation: "marquee 32s linear infinite",
+            }}
+          >
+            {[...partners, ...partners].map((partner, index) => (
+              <div
+                key={`${partner.name}-${index}`}
+                className="relative flex-shrink-0 flex items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-md border border-border/60 bg-white shadow-md"
+              >
+                <Image
+                  src={partner.src}
+                  alt={partner.name}
+                  width={120}
+                  height={120}
+                  className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                />
               </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative flex items-center justify-center"
-            >
-              <div className="grid grid-cols-5 gap-3">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <motion.div
-                    key={`screen-${i}`}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
-                    className="w-14 h-10 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
-                  >
-                    <Monitor className="w-5 h-5 text-orange-400" />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Feature 2 — Pro Team */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative flex items-center justify-center order-2 md:order-1"
-            >
-              <div className="grid grid-cols-6 gap-2">
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <motion.div
-                    key={`person-${i}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.05 + i * 0.03, duration: 0.3 }}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-200/60 flex items-center justify-center shadow-sm"
-                  >
-                    <UsersRound className="w-5 h-5 text-blue-400" />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="order-1 md:order-2"
-            >
-              <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
-                <UsersRound className="w-4 h-4" /> ทีมกดมืออาชีพ
-              </span>
-              <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
-                ทีมกดจริง{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
-                  30 คน
-                </span>
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                แบ่งหน้าที่ชัดเจน ไม่รับคิวซ้อน ไม่รับคิวเกิน กด 1:1
-                มีแอดมินคอยตอบตลอดเวลา
-              </p>
-              <div className="space-y-3">
-                {[
-                  { icon: Eye, text: "เฝ้ารอหลุดจนกว่าบัตรจะหมดจริง" },
-                  { icon: Heart, text: "ถ้ายังมีโอกาส เรายังไม่หยุดกด" },
-                  { icon: Ticket, text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง" },
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.text}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                      <item.icon className="w-4 h-4 text-blue-500" />
-                    </div>
-                    <span className="text-foreground font-medium">
-                      {item.text}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            ))}
           </div>
         </div>
       </section>

@@ -137,17 +137,17 @@ export default function TrackingPage() {
   }, []);
 
   return (
-    <main className="min-h-screen px-4 py-4">
+    <main className="min-h-screen px-3 py-4 sm:px-4">
       {isLoading && <Loading />}
       <div className="max-w-5xl mx-auto space-y-6">
-        <div className="text-center space-y-1">
-          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
+        <div className="text-center space-y-2 px-2">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground">
             Tracking
           </p>
-          <h1 className="text-3xl font-black text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground">
             ติดตามสถานะการจองของคุณ
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
             ตรวจสอบสถานะล่าสุดของคำสั่งซื้อและการชำระเงิน
           </p>
         </div>
@@ -167,8 +167,8 @@ export default function TrackingPage() {
             </div>
           ) : (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-                <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+              <div className="flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 w-full">
                   <input
                     type="text"
                     value={searchQuery}
@@ -177,14 +177,19 @@ export default function TrackingPage() {
                       setCurrentPage(1);
                     }}
                     placeholder="ค้นหารหัสการจอง คอนเสิร์ต หรือสถานะ"
-                    className="flex-1 rounded-full border border-border/60 bg-white/80 px-4 py-2 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    className="w-full rounded-2xl border border-border/60 bg-white/80 px-4 py-2 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </div>
-                <div className="flex flex-wrap items-center justify-end gap-3 text-sm">
+                <div className="flex flex-col gap-2 text-xs sm:text-sm sm:flex-row sm:items-center sm:justify-end">
                   <span className="text-muted-foreground">
                     อัปเดตล่าสุด: {formattedLastUpdated}
                   </span>
-                  <Button variant="outline" size="sm" onClick={handleRefresh}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    onClick={handleRefresh}
+                  >
                     <RefreshCcw
                       className={`mr-1.5 h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
                     />
@@ -193,7 +198,38 @@ export default function TrackingPage() {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-border/50">
+              {/* Mobile stacked cards */}
+              <div className="space-y-3 sm:hidden">
+                {paginatedRows.map((row) => (
+                  <div
+                    key={row.bookingId}
+                    className="rounded-2xl border border-border/40 bg-white/90 p-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          รหัสการจอง
+                        </p>
+                        <p className="text-base font-bold">{row.bookingId}</p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-[11px] font-semibold ${STATUS_METADATA[row.status].colorClass}`}
+                      >
+                        {row.status}
+                      </span>
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm">
+                      <p className="font-medium text-foreground">
+                        {row.concertName}
+                      </p>
+                      <p className="text-muted-foreground">{row.showTime}</p>
+                      <p className="text-muted-foreground">โซน: {row.zone}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="hidden sm:block overflow-hidden rounded-2xl border border-border/50">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -244,10 +280,11 @@ export default function TrackingPage() {
                             แสดง {showingFrom}-{showingTo} จาก {bookings.length}{" "}
                             รายการ
                           </p>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
                             <Button
                               variant="outline"
                               size="sm"
+                              className="w-full sm:w-auto"
                               disabled={clampedPage === 1}
                               onClick={() =>
                                 setCurrentPage((prev) => Math.max(1, prev - 1))
@@ -255,12 +292,13 @@ export default function TrackingPage() {
                             >
                               ก่อนหน้า
                             </Button>
-                            <span className="font-semibold text-foreground">
+                            <span className="font-semibold text-foreground text-center">
                               หน้า {clampedPage} / {totalPages}
                             </span>
                             <Button
                               variant="outline"
                               size="sm"
+                              className="w-full sm:w-auto"
                               disabled={clampedPage === totalPages}
                               onClick={() =>
                                 setCurrentPage((prev) =>
@@ -276,6 +314,38 @@ export default function TrackingPage() {
                     </TableRow>
                   </TableFooter>
                 </Table>
+              </div>
+
+              {/* Pagination helper for mobile */}
+              <div className="sm:hidden space-y-2 text-sm text-center text-muted-foreground">
+                <p>
+                  แสดง {showingFrom}-{showingTo} จาก {bookings.length} รายการ
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={clampedPage === 1}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
+                  >
+                    ก่อนหน้า
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={clampedPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
+                  >
+                    ถัดไป
+                  </Button>
+                </div>
+                <p className="font-semibold text-foreground">
+                  หน้า {clampedPage} / {totalPages}
+                </p>
               </div>
             </>
           )}
