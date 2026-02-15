@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -62,15 +62,40 @@ const partners = [
 
 function RotatingCards() {
   const [index, setIndex] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const nextCard = useCallback(() => {
     setIndex((prev) => (prev + 1) % cards.length);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(nextCard, 2000);
-    return () => clearInterval(interval);
+  const startInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(nextCard, 2000);
   }, [nextCard]);
+
+  useEffect(() => {
+    startInterval();
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [startInterval]);
+
+  const handleCardClick = useCallback(
+    (i: number) => {
+      setIndex(i);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      setTimeout(() => {
+        startInterval();
+      }, 2000);
+    },
+    [startInterval],
+  );
 
   const getCardStyle = (i: number) => {
     const total = cards.length;
@@ -128,7 +153,7 @@ function RotatingCards() {
                     : { opacity: 0.8, scale: 0.8 }
                 }
                 transition={{ type: "spring", stiffness: 180, damping: 22 }}
-                onClick={() => setIndex(i)}
+                onClick={() => handleCardClick(i)}
                 className={`absolute w-80 h-48 rounded-3xl border-[3px] p-7 cursor-pointer bg-white select-none shadow-2xl
                   ${
                     isActive
@@ -512,16 +537,7 @@ export default function Home() {
             }
           }
         `}</style>
-        <div className="max-w-5xl mx-auto text-center space-y-3 mb-10">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="text-sm font-bold uppercase tracking-[0.3em] text-primary"
-          >
-            ผู้จำหน่ายบัตรที่เรารับจอง
-          </motion.p>
+        <div className="max-w-5xl mx-auto text-center space-y-3 my-10">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -529,20 +545,10 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-black text-foreground"
           >
-            พาร์ตเนอร์ที่ไว้ใจเรา
+            ผู้จำหน่ายบัตรที่เรารับจอง
           </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="text-muted-foreground max-w-2xl mx-auto"
-          >
-            เราเชื่อมต่อกับแพลตฟอร์มจำหน่ายบัตรชั้นนำ
-            เพื่อให้คุณเข้าถึงบัตรที่ต้องการได้เร็วกว่าและมั่นใจได้ในทุกขั้นตอน
-          </motion.p>
         </div>
-        <div className="relative overflow-hidden group">
+        <div className="relative overflow-hidden group py-10">
           <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
           <div
