@@ -165,16 +165,35 @@ export default function Bookings() {
   return (
     <>
       {step === steps[0].id && (
-        <Condition onNext={() => goToStep(steps[1].id)} />
-      )}
-      {step === steps[1].id && (
         <Event
           onBack={() => goToStep(steps[0].id)}
           onSelect={(event) => {
             setSelectedEvent(event);
-            goToStep(steps[2].id);
+            goToStep(steps[1].id);
           }}
         />
+      )}
+      {step === steps[1].id && selectedEvent && (
+        <Condition
+          eventType={selectedEvent.eventTypes}
+          onBack={() => goToStep(steps[0].id)}
+          onNext={() => goToStep(steps[1].id)}
+        />
+      )}
+      {step === steps[1].id && !selectedEvent && (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 text-center">
+          <div className="max-w-md space-y-3">
+            <p className="text-2xl font-bold text-foreground">
+              ยังไม่ได้เลือกงาน
+            </p>
+            <p className="text-muted-foreground">
+              กรุณาเลือกงานที่ต้องการก่อน เพื่อแสดงเงื่อนไขตามประเภทงานนั้น ๆ
+            </p>
+          </div>
+          <Button size="lg" onClick={() => goToStep(steps[0].id)}>
+            เลือกงาน
+          </Button>
+        </div>
       )}
       {step === steps[2].id && selectedEvent && (
         <BookingInfo

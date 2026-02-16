@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import StepBooking from "./stepBooking";
 import { Input } from "@/components/ui/input";
+import { EEventTypes } from "../types/enum";
 
 export type BookingEvent = {
   id: number;
@@ -30,6 +31,7 @@ export type BookingEvent = {
   poster: string;
   showTime: string;
   ticketInfo: string;
+  eventTypes: EEventTypes;
   serviceFee: string;
   note: string;
   zones: {
@@ -48,6 +50,7 @@ const mockEvents: BookingEvent[] = [
   {
     id: 1,
     name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
+    eventTypes: EEventTypes.ticket,
     poster: "/placeholder-concert.jpg",
     showTime: "7-8 มกราคม 2026 (2 รอบ)",
     ticketInfo:
@@ -64,6 +67,7 @@ const mockEvents: BookingEvent[] = [
   {
     id: 2,
     name: "TREASURE CONCERT 2026 IN BANGKOK",
+    eventTypes: EEventTypes.form,
     poster: "/placeholder-concert.jpg",
     showTime: "15 กุมภาพันธ์ 2026 (1 รอบ)",
     ticketInfo: "VIP 7,500 / Standing 4,500 / Seat A 5,500",
@@ -78,6 +82,7 @@ const mockEvents: BookingEvent[] = [
   {
     id: 3,
     name: "SEVENTEEN FOLLOW TOUR IN BANGKOK",
+    eventTypes: EEventTypes.ticket,
     poster: "/placeholder-concert.jpg",
     showTime: "20-21 มีนาคม 2026 (2 รอบ)",
     ticketInfo:

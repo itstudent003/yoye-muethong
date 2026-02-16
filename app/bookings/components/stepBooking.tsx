@@ -7,8 +7,8 @@ interface StepBookingProps {
 }
 
 export const steps = [
-  { id: 1, label: "เงื่อนไข" },
-  { id: 2, label: "เลือกงาน" },
+  { id: 1, label: "เลือกงาน" },
+  { id: 2, label: "เงื่อนไข" },
   { id: 3, label: "ข้อมูล" },
   { id: 4, label: "ชำระเงินมัดจำ" },
 ];

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SingleCombobox } from "@/components/ui/combobox";
 import type { BookingEvent } from "./event";
 import { RefreshCcw, ArrowDown } from "lucide-react";
-import { zoneStatus } from "../types/enum";
+import { EZoneStatus } from "../types/enum";
 import type { BookingFormData } from "../page";
 
 interface BookingInfoProps {
@@ -43,7 +43,7 @@ type ZoneOption = {
   name: string;
   remaining: number;
   ticketPrice: number;
-  status: zoneStatus;
+  status: EZoneStatus;
 };
 
 type ConcertData = {
@@ -70,35 +70,35 @@ const mockConcertData: ConcertData = {
           name: "VIP Standing",
           remaining: 24,
           ticketPrice: 8500,
-          status: zoneStatus.AVAILABLE,
+          status: EZoneStatus.AVAILABLE,
         },
         {
           id: 2,
           name: "Standing",
           remaining: 42,
           ticketPrice: 5500,
-          status: zoneStatus.AVAILABLE,
+          status: EZoneStatus.AVAILABLE,
         },
         {
           id: 9,
           name: "Standing",
           remaining: 0,
           ticketPrice: 5500,
-          status: zoneStatus.TEMP_FULL,
+          status: EZoneStatus.TEMP_FULL,
         },
         {
           id: 10,
           name: "Standing",
           remaining: 0,
           ticketPrice: 5500,
-          status: zoneStatus.SOLD_OUT,
+          status: EZoneStatus.SOLD_OUT,
         },
         {
           id: 11,
           name: "Standing",
           remaining: 42,
           ticketPrice: 5500,
-          status: zoneStatus.AVAILABLE,
+          status: EZoneStatus.AVAILABLE,
         },
       ],
     },
@@ -392,12 +392,12 @@ export default function BookingInfo({
                         let borderColor = "border-green-500/20";
                         let bgGradient = "from-green-500/5 to-transparent";
 
-                        if (zone.status === zoneStatus.SOLD_OUT) {
+                        if (zone.status === EZoneStatus.SOLD_OUT) {
                           statusColor = "bg-red-500";
                           statusShadow = "shadow-red-500/50";
                           borderColor = "border-red-500/20";
                           bgGradient = "from-red-500/5 to-transparent";
-                        } else if (zone.status === zoneStatus.TEMP_FULL) {
+                        } else if (zone.status === EZoneStatus.TEMP_FULL) {
                           statusColor = "bg-orange-500";
                           statusShadow = "shadow-orange-500/50";
                           borderColor = "border-orange-500/20";
