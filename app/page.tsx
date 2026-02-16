@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 const cards = [
   {
     id: 1,
-    title: "จองคิวสำเร็จ",
-    stats: "1,240+",
+    title: "ทีมกดจริง",
+    stats: "25+ คน",
     icon: Trophy,
     iconBg: "bg-orange-100",
     iconColor: "text-orange-500",
@@ -61,149 +61,57 @@ const partners = [
 ];
 
 function RotatingCards() {
-  const [index, setIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const nextCard = useCallback(() => {
-    setIndex((prev) => (prev + 1) % cards.length);
-  }, []);
-
-  const startInterval = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    intervalRef.current = setInterval(nextCard, 2000);
-  }, [nextCard]);
-
-  useEffect(() => {
-    startInterval();
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [startInterval]);
-
-  const handleCardClick = useCallback(
-    (i: number) => {
-      setIndex(i);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      setTimeout(() => {
-        startInterval();
-      }, 2000);
-    },
-    [startInterval],
-  );
-
-  const getCardStyle = (i: number) => {
-    const total = cards.length;
-    let diff = i - index;
-
-    if (diff > total / 2) diff -= total;
-    if (diff < -total / 2) diff += total;
-
-    const isActive = i === index;
-    const translateX = diff * 260;
-    const rotateY = diff * -40;
-    const z = isActive ? 0 : -250;
-    const scale = isActive ? 1 : 0.75;
-    const opacity = isActive ? 1 : 0.5;
-    const zIndex = 10 - Math.abs(diff);
-
-    return {
-      x: translateX,
-      rotateY,
-      z,
-      scale,
-      opacity,
-      zIndex,
-    };
-  };
-
   return (
-    <motion.div
-      className="relative z-10 flex items-center justify-center"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-    >
-      <div
-        className="relative w-full max-w-5xl h-[360px] sm:h-[420px] flex items-center justify-center"
-        style={{ perspective: "1200px" }}
-      >
-        <div
-          className="relative w-full h-full flex items-center justify-center"
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          {cards.map((card, i) => {
-            const Icon = card.icon;
-            const style = getCardStyle(i);
-            const isActive = i === index;
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {cards.slice(0, 3).map((card, i) => {
+        const Icon = card.icon;
 
-            return (
-              <motion.div
-                key={card.id}
-                initial={false}
-                animate={style}
-                whileHover={
-                  isActive
-                    ? { y: -15, scale: 1.02 }
-                    : { opacity: 0.8, scale: 0.8 }
-                }
-                transition={{ type: "spring", stiffness: 180, damping: 22 }}
-                onClick={() => handleCardClick(i)}
-                className={`absolute w-80 h-48 rounded-3xl border-[3px] p-7 cursor-pointer bg-white select-none shadow-2xl
-                  ${
-                    isActive
-                      ? "border-orange-300 shadow-orange-100/50"
-                      : "border-slate-100"
-                  }`}
-                style={{
-                  backfaceVisibility: "hidden",
-                  transformStyle: "preserve-3d",
-                  touchAction: "none",
-                }}
-              >
-                <div className="flex flex-col h-full justify-between relative z-10 pointer-events-none">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`p-3 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-inner`}
-                    >
-                      <Icon
-                        className={`w-6 h-6 ${card.iconColor}`}
-                        strokeWidth={2.5}
-                      />
-                    </div>
-                    <span className="text-xl font-bold text-slate-700 tracking-tight">
-                      {card.title}
-                    </span>
-                  </div>
-
-                  <div className="mt-auto">
-                    <motion.h2
-                      animate={isActive ? { scale: [1, 1.05, 1] } : {}}
-                      transition={{ repeat: Infinity, duration: 4 }}
-                      className="text-5xl font-black text-orange-400 tracking-tighter"
-                    >
-                      {card.stats}
-                    </motion.h2>
-                  </div>
+        return (
+          <motion.div
+            key={card.id}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -10, scale: 1.03 }}
+            transition={{
+              opacity: {
+                delay: 0.2 + i * 0.15,
+                duration: 0.6,
+                ease: "easeOut",
+              },
+              y: { type: "spring", stiffness: 400, damping: 25 },
+              scale: { type: "spring", stiffness: 400, damping: 25 },
+            }}
+            className="rounded-3xl border-[3px] border-orange-300 p-6 bg-white shadow-xl shadow-orange-100/50 hover:shadow-2xl hover:shadow-orange-200/60 transition-shadow duration-200"
+          >
+            <div className="flex flex-col h-full justify-between">
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className={`p-3 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-inner`}
+                >
+                  <Icon
+                    className={`w-6 h-6 ${card.iconColor}`}
+                    strokeWidth={2.5}
+                  />
                 </div>
+                <span className="text-lg font-bold text-slate-700 tracking-tight">
+                  {card.title}
+                </span>
+              </div>
 
-                {isActive && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-orange-50/30 rounded-3xl pointer-events-none" />
-                )}
-                {!isActive && (
-                  <div className="absolute inset-0 bg-transparent rounded-3xl z-20" />
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-    </motion.div>
+              <div>
+                <motion.h2
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 4 }}
+                  className="text-4xl md:text-5xl font-black text-orange-400 tracking-tighter"
+                >
+                  {card.stats}
+                </motion.h2>
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -220,18 +128,21 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {isLoading && <Loading />}
       {/* Hero Section */}
-      <section id="home" className="relative pt-10 pb-16 px-4 overflow-hidden">
+      <section
+        id="home"
+        className="relative h-screen pt-10 pb-16 px-4 overflow-hidden flex items-center"
+      >
         {/* Background decorative blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 items-center">
+        <div className="max-w-6xl mx-auto text-center space-y-12">
           <motion.div
             className="z-10"
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             {/* Status badge */}
@@ -257,7 +168,7 @@ export default function Home() {
             >
               จองบัตรคอนเสิร์ต <br />
               <span className="text-transparent bg-clip-text bg-linear-to-bl from-gradient-start to-gradient-end">
-                โอกาสได้สูง
+                เพิ่มโอกาสครอบครองบัตรที่ต้องการ
               </span>
             </motion.h1>
 
@@ -266,7 +177,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="text-lg text-muted-foreground mb-8 max-w-lg leading-relaxed"
+              className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
             >
               เราช่วยคุณจองคิวและกดบัตรงานแสดงที่คุณรัก
               ด้วยทีมงานมืออาชีพและระบบแจ้งเตือนผ่าน LINE ทันทีทุกความเคลื่อนไหว
@@ -277,172 +188,30 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex justify-center"
             >
               <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative group"
               >
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-primary to-orange-400 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 animate-pulse transition duration-300" />
                 <Button
                   size="lg"
-                  className="h-14 px-8 rounded-2xl text-lg font-bold shadow-lg"
+                  className="relative h-20 px-12 rounded-3xl text-2xl font-bold bg-gradient-to-r from-primary to-orange-500 hover:from-orange-500 hover:to-primary text-white shadow-2xl shadow-primary/50 transition-all duration-300"
                   onClick={() => router.push("/bookings")}
                 >
                   จองคิวตอนนี้
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <ChevronRight className="ml-2 h-7 w-7" />
                 </Button>
               </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Right side - rotating cards */}
-          <div className="mt-10 lg:mt-0">
+          {/* Cards section */}
+          <div>
             <RotatingCards />
           </div>
-        </div>
-      </section>
-
-      {/* Queue Volume Section */}
-      <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-orange-100/40 blur-3xl" />
-          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-        </div>
-
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
-              <Monitor className="w-4 h-4" /> ระบบรันคิวจำนวนมาก
-            </span>
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
-              รันคิวรวม{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
-                500+ จอ
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              เพิ่มโอกาสเข้าหน้าซื้อเร็วกว่าใช้เครื่องเดียวหลายเท่า
-              ด้วยระบบรันคิวพร้อมกันทั้งร้าน ไม่พลาดทุกรอบการขาย
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Monitor className="w-4 h-4 text-orange-500" />
-                </div>
-                500+ จอพร้อมกัน
-              </div>
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <BadgeCheck className="w-4 h-4 text-green-500" />
-                </div>
-                เพิ่มโอกาสได้บัตรสูงขึ้น
-              </div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative flex items-center justify-center"
-          >
-            <div className="grid grid-cols-5 gap-3">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <motion.div
-                  key={`screen-${i}`}
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
-                  className="w-14 h-10 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
-                >
-                  <Monitor className="w-5 h-5 text-orange-400" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pro Team Section */}
-      <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-blue-100/40 blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-        </div>
-
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative flex items-center justify-center order-2 lg:order-1"
-          >
-            <div className="grid grid-cols-6 gap-2">
-              {Array.from({ length: 30 }).map((_, i) => (
-                <motion.div
-                  key={`person-${i}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.05 + i * 0.03, duration: 0.3 }}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-200/60 flex items-center justify-center shadow-sm"
-                >
-                  <UsersRound className="w-5 h-5 text-blue-400" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="order-1 lg:order-2"
-          >
-            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
-              <UsersRound className="w-4 h-4" /> ทีมกดมืออาชีพ
-            </span>
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
-              ทีมกดจริง{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
-                30 คน
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              แบ่งหน้าที่ชัดเจน ไม่รับคิวซ้อน ไม่รับคิวเกิน กด 1:1
-              มีแอดมินคอยตอบตลอดเวลา
-            </p>
-            <div className="space-y-3">
-              {[
-                { icon: Eye, text: "เฝ้ารอหลุดจนกว่าบัตรจะหมดจริง" },
-                { icon: Heart, text: "ถ้ายังมีโอกาส เรายังไม่หยุดกด" },
-                { icon: Ticket, text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง" },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.text}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                    <item.icon className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <span className="text-foreground font-medium">
-                    {item.text}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </section>
 
@@ -523,6 +292,209 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Summary Checklist */}
+      <section className="relative py-20 px-4 bg-primary/10 overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center mb-14">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl md:text-4xl font-black text-foreground mb-3"
+          >
+            จุดเด่นของเรา
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-muted-foreground text-lg"
+          >
+            ทุกอย่างที่คุณต้องการ ครบจบในที่เดียว
+          </motion.p>
+        </div>
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
+          {[
+            { text: "รันคิว 500+ จอ", icon: Monitor },
+            { text: "ทีมกดมากกว่า 25 คน", icon: UsersRound },
+            { text: "เฝ้ารอหลุดจนกว่าบัตรหมดจริง", icon: Eye },
+            { text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง", icon: Ticket },
+            { text: "จดบริษัท + VAT ถูกต้อง", icon: Building2 },
+            { text: "โปร่งใส ตรวจสอบได้ทุกขั้นตอน", icon: ShieldCheck },
+          ].map((item, i) => (
+            <motion.div
+              key={item.text}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+              whileHover={{ scale: 1.03 }}
+              className="flex items-center gap-4 rounded-2xl border border-border/60 bg-white px-5 py-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  delay: 0.2 + i * 0.08,
+                  type: "spring",
+                  stiffness: 300,
+                }}
+                className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0"
+              >
+                <item.icon className="w-5 h-5 text-green-600" />
+              </motion.div>
+              <span className="text-foreground font-semibold">{item.text}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pro Team Section */}
+      <section className="relative h-screen py-24 px-4 sm:px-6 overflow-hidden flex items-center">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-blue-100/40 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        </div>
+
+        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative flex items-center justify-center order-2 lg:order-1"
+          >
+            <div className="grid grid-cols-6 gap-2">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <motion.div
+                  key={`person-${i}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.05 + i * 0.03, duration: 0.3 }}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-200/60 flex items-center justify-center shadow-sm"
+                >
+                  <UsersRound className="w-5 h-5 text-blue-400" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="order-1 lg:order-2"
+          >
+            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+              <UsersRound className="w-4 h-4" /> ทีมกดมืออาชีพ
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
+              ทีมกดจริง{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
+                มากกว่า 25 คน
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              แบ่งหน้าที่ชัดเจน ไม่รับคิวซ้อน ไม่รับคิวเกิน กด 1:1
+              มีแอดมินคอยตอบตลอดเวลา
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: Eye, text: "เฝ้ารอหลุดจนกว่าบัตรจะหมดจริง" },
+                { icon: Heart, text: "ถ้ายังมีโอกาส เรายังไม่หยุดกด" },
+                { icon: Ticket, text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง" },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.text}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <span className="text-foreground font-medium">
+                    {item.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Queue Volume Section */}
+      <section className="relative h-screen py-24 px-4 sm:px-6 overflow-hidden flex items-center">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-orange-100/40 blur-3xl" />
+          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        </div>
+
+        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+              <Monitor className="w-4 h-4" /> ระบบรันคิวจำนวนมาก
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
+              รันคิวรวม{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
+                500+ จอ
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              เพิ่มโอกาสเข้าหน้าซื้อเร็วกว่าใช้เครื่องเดียวหลายเท่า
+              ด้วยระบบรันคิวพร้อมกันทั้งร้าน ไม่พลาดทุกรอบการขาย
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Monitor className="w-4 h-4 text-orange-500" />
+                </div>
+                500+ จอพร้อมกัน
+              </div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <BadgeCheck className="w-4 h-4 text-green-500" />
+                </div>
+                เพิ่มโอกาสได้บัตรสูงขึ้น
+              </div>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative flex items-center justify-center"
+          >
+            <div className="grid grid-cols-5 gap-3">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <motion.div
+                  key={`screen-${i}`}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
+                  className="w-14 h-10 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
+                >
+                  <Monitor className="w-5 h-5 text-orange-400" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Partner Section */}
       <section className="py-4 px-4">
         <style jsx>{`
@@ -572,65 +544,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Summary Checklist */}
-      <section className="relative py-20 px-4 bg-primary/10 overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center mb-14">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-black text-foreground mb-3"
-          >
-            จุดเด่นของเรา
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="text-muted-foreground text-lg"
-          >
-            ทุกอย่างที่คุณต้องการ ครบจบในที่เดียว
-          </motion.p>
-        </div>
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
-          {[
-            { text: "รันคิว 500+ จอ", icon: Monitor },
-            { text: "ทีมกด 30 คน", icon: UsersRound },
-            { text: "เฝ้ารอหลุดจนกว่าบัตรหมดจริง", icon: Eye },
-            { text: "ไม่บังคับ + มีโซนสำรอง / ราคาสำรอง", icon: Ticket },
-            { text: "จดบริษัท + VAT ถูกต้อง", icon: Building2 },
-            { text: "โปร่งใส ตรวจสอบได้ทุกขั้นตอน", icon: ShieldCheck },
-          ].map((item, i) => (
-            <motion.div
-              key={item.text}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.4 }}
-              whileHover={{ scale: 1.03 }}
-              className="flex items-center gap-4 rounded-2xl border border-border/60 bg-white px-5 py-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <motion.div
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{
-                  delay: 0.2 + i * 0.08,
-                  type: "spring",
-                  stiffness: 300,
-                }}
-                className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0"
-              >
-                <item.icon className="w-5 h-5 text-green-600" />
-              </motion.div>
-              <span className="text-foreground font-semibold">{item.text}</span>
-            </motion.div>
-          ))}
         </div>
       </section>
     </div>
