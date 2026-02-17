@@ -21,7 +21,9 @@ import {
   StickyNote,
   Ticket,
   User,
+  Users,
 } from "lucide-react";
+import { EEventTypes } from "../types/enum";
 
 // ── Types ──────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ type BookingDetail = {
   poster: string;
   showTime: string;
   zone: string;
+  eventTypes: EEventTypes;
   quantity: number;
   total: number;
   serviceFee: number;
@@ -63,6 +66,7 @@ const mockBooking: BookingDetail = {
   showTime: "25 เมษายน 2569 (19:00 น.)",
   zone: "VIP Standing",
   quantity: 2,
+  eventTypes: EEventTypes.form,
   total: 17000,
   serviceFee: 500,
   note: "หมายเหตุตอนที่กรอกรายละเอียดการจอง",
@@ -110,9 +114,15 @@ export default function BookingDetailPage() {
 
   const selectedZone = booking.zones.find((z) => z.id === selectedZoneId);
   const ticketsToCharge = Math.min(adjustedQuantity, booking.quantity);
+
+  // Calculate unit price for fallback (e.g. form type without zones)
+  const baseUnitPrice =
+    booking.quantity > 0 ? booking.total / booking.quantity : 0;
+  const unitTotal = baseUnitPrice + (booking.serviceFee || 0);
+
   const updatedTotal = selectedZone
     ? (selectedZone.price + (booking.serviceFee || 0)) * ticketsToCharge
-    : booking.total;
+    : unitTotal * ticketsToCharge;
 
   const extraFieldsValid = mockExtraFields.every(
     (f) => !f.isRequired || (extraValues[f.id] ?? "").trim().length > 0,
@@ -125,7 +135,7 @@ export default function BookingDetailPage() {
     <div className="min-h-screen py-4 px-3 sm:px-4">
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Back */}
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="text-primary">
           <Link href="/bookings" className="gap-1.5">
             <ArrowLeft className="size-4" />
             กลับหน้าจอง
@@ -193,105 +203,85 @@ export default function BookingDetailPage() {
           <div className="lg:col-span-2 space-y-4">
             {/* Zone Selection */}
             <Card className="p-5 space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <MapPin className="size-5 text-primary mt-0.5" />
-                  <div className="space-y-1">
-                    <h3 className="text-base font-bold">โซน / ราคาบัตร</h3>
-                    <p className="text-gray-500 text-xs text-muted-foreground w-full max-w-[220px] xs:max-w-none leading-tight">
-                      ***
-                      กรณีลดจำนวนบัตรภายหลังทางร้านขอสงวนสิทธิ์ไม่คืนเงินมัดจำในส่วนที่ลดลง
-                      ***
-                    </p>
-                  </div>
-                </div>
-                {!isEditingZone ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs shrink-0"
-                    onClick={() => setIsEditingZone(true)}
-                  >
-                    เปลี่ยนราคาบัตรหลัก
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="h-8 text-xs shrink-0"
-                    onClick={() => setIsEditingZone(false)}
-                  >
-                    บันทึก
-                  </Button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {(isEditingZone
-                  ? booking.zones
-                  : booking.zones.filter((z) => z.id === selectedZoneId)
-                ).map((zone) => (
-                  <div
-                    key={zone.id}
-                    className={`relative rounded-xl border-2 p-4 transition-all duration-200 ${
-                      selectedZoneId === zone.id
-                        ? "border-primary bg-primary/5 shadow-md"
-                        : zone.available
-                          ? "border-border/60"
-                          : "border-border/30 opacity-50"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      disabled={!zone.available || !isEditingZone}
-                      onClick={() => setSelectedZoneId(zone.id)}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-sm">
-                          {zone.name}
-                        </span>
-                        {!zone.available && (
-                          <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
-                            เต็ม
-                          </span>
-                        )}
+              {booking.eventTypes === EEventTypes.form ? (
+                /* ── Form Type: Quantity Selection ── */
+                <>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <Users className="size-5 text-primary mt-0.5" />
+                      <div className="space-y-1">
+                        <h3 className="text-base font-bold">จำนวนรายชื่อ</h3>
+                        <p className="text-gray-500 text-xs text-muted-foreground w-full max-w-[220px] xs:max-w-none leading-tight">
+                          ***
+                          กรณีลดจำนวนรายชื่อภายหลังทางร้านขอสงวนสิทธิ์ไม่คืนเงินมัดจำในส่วนที่ลดลง
+                          ***
+                        </p>
                       </div>
-                      <p className="text-lg font-black text-primary mt-1">
-                        ฿{zone.price.toLocaleString()}
-                        <span className="text-xs text-muted-foreground font-normal ml-1">
-                          + ( ค่ากดบัตร {booking.serviceFee.toLocaleString()}
-                          /ใบ )
-                        </span>
-                      </p>
-                    </button>
-                    {selectedZoneId === zone.id && isEditingZone && (
-                      <div className="mt-3 pt-3 border-t border-primary/20 space-y-2">
+                    </div>
+                    {!isEditingZone ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs shrink-0"
+                        onClick={() => setIsEditingZone(true)}
+                      >
+                        เปลี่ยนจำนวนรายชื่อ
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs shrink-0"
+                        onClick={() => setIsEditingZone(false)}
+                      >
+                        บันทึก
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="mt-2">
+                    {!isEditingZone ? (
+                      <div className="flex items-center gap-4 p-4 py-2 border rounded-xl bg-background/50">
+                        <div className="size-10 flex items-center justify-center bg-primary/10 rounded-full shrink-0">
+                          <Users className="size-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            จำนวนที่เลือก
+                          </p>
+                          <p className="text-lg text-primary">
+                            {ticketsToCharge} รายชื่อ
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 border-2 border-primary bg-primary/5 rounded-xl space-y-4">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs font-semibold text-muted-foreground">
-                            ปรับจำนวนบัตร
+                          <Label className="text-sm font-semibold text-foreground">
+                            ปรับจำนวนรายชื่อ
                           </Label>
                           <span className="text-[10px] text-amber-600 font-medium">
                             ⚠️ ลดได้เท่านั้น ไม่สามารถเพิ่มได้
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="inline-flex items-center rounded-xl border border-border/70 bg-background px-1.5 py-1 shadow-sm">
+
+                        <div className="flex items-center gap-4">
+                          <div className="inline-flex items-center rounded-xl border border-border/70 bg-background px-2 py-1.5 shadow-sm">
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-7 rounded-lg"
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              className="size-9 rounded-lg hover:bg-muted"
+                              onClick={() =>
                                 setAdjustedQuantity((prev) =>
                                   Math.max(1, prev - 1),
-                                );
-                              }}
+                                )
+                              }
                               disabled={adjustedQuantity === 1}
                             >
-                              <Minus className="size-3.5" />
+                              <Minus className="size-4" />
                             </Button>
-                            <div className="min-w-[48px] text-center">
-                              <p className="text-xl font-black leading-none">
+                            <div className="min-w-[60px] text-center">
+                              <p className="text-2xl font-black leading-none text-primary">
                                 {adjustedQuantity}
                               </p>
                             </div>
@@ -299,27 +289,164 @@ export default function BookingDetailPage() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-7 rounded-lg"
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              className="size-9 rounded-lg hover:bg-muted"
+                              onClick={() =>
                                 setAdjustedQuantity((prev) =>
                                   Math.min(booking.quantity, prev + 1),
-                                );
-                              }}
+                                )
+                              }
                               disabled={adjustedQuantity === booking.quantity}
                             >
-                              <Plus className="size-3.5" />
+                              <Plus className="size-4" />
                             </Button>
                           </div>
-                          <p className="text-[10px] text-muted-foreground">
-                            จำนวนเดิม {booking.quantity} ใบ
-                          </p>
+                          <div className="text-xs text-muted-foreground">
+                            <p>จากจำนวนเดิม</p>
+                            <div className="flex items-center gap-1 font-semibold">
+                              <Users className="size-3" />
+                              {booking.quantity} รายชื่อ
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                /* ── Ticket Type: Zone Selection ── */
+                <>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="size-5 text-primary mt-0.5" />
+                      <div className="space-y-1">
+                        <h3 className="text-base font-bold">โซน / ราคาบัตร</h3>
+                        <p className="text-gray-500 text-xs text-muted-foreground w-full max-w-[220px] xs:max-w-none leading-tight">
+                          ***
+                          กรณีลดจำนวนบัตรภายหลังทางร้านขอสงวนสิทธิ์ไม่คืนเงินมัดจำในส่วนที่ลดลง
+                          ***
+                        </p>
+                      </div>
+                    </div>
+                    {!isEditingZone ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs shrink-0"
+                        onClick={() => setIsEditingZone(true)}
+                      >
+                        เปลี่ยนราคาบัตรหลัก
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs shrink-0"
+                        onClick={() => setIsEditingZone(false)}
+                      >
+                        บันทึก
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {(isEditingZone
+                      ? booking.zones
+                      : booking.zones.filter((z) => z.id === selectedZoneId)
+                    ).map((zone) => (
+                      <div
+                        key={zone.id}
+                        className={`relative rounded-xl border-2 p-4 transition-all duration-200 ${
+                          selectedZoneId === zone.id
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : zone.available
+                              ? "border-border/60"
+                              : "border-border/30 opacity-50"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          disabled={!zone.available || !isEditingZone}
+                          onClick={() => setSelectedZoneId(zone.id)}
+                          className="w-full text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-sm">
+                              {zone.name}
+                            </span>
+                            {!zone.available && (
+                              <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
+                                เต็ม
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-lg font-black text-primary mt-1">
+                            ฿{zone.price.toLocaleString()}
+                            <span className="text-xs text-muted-foreground font-normal ml-1">
+                              + ( ค่ากดบัตร{" "}
+                              {booking.serviceFee.toLocaleString()}
+                              /ใบ )
+                            </span>
+                          </p>
+                        </button>
+                        {selectedZoneId === zone.id && isEditingZone && (
+                          <div className="mt-3 pt-3 border-t border-primary/20 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                ปรับจำนวนบัตร
+                              </Label>
+                              <span className="text-[10px] text-amber-600 font-medium">
+                                ⚠️ ลดได้เท่านั้น ไม่สามารถเพิ่มได้
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="inline-flex items-center rounded-xl border border-border/70 bg-background px-1.5 py-1 shadow-sm">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-7 rounded-lg"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAdjustedQuantity((prev) =>
+                                      Math.max(1, prev - 1),
+                                    );
+                                  }}
+                                  disabled={adjustedQuantity === 1}
+                                >
+                                  <Minus className="size-3.5" />
+                                </Button>
+                                <div className="min-w-[48px] text-center">
+                                  <p className="text-xl font-black leading-none">
+                                    {adjustedQuantity}
+                                  </p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-7 rounded-lg"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAdjustedQuantity((prev) =>
+                                      Math.min(booking.quantity, prev + 1),
+                                    );
+                                  }}
+                                  disabled={
+                                    adjustedQuantity === booking.quantity
+                                  }
+                                >
+                                  <Plus className="size-3.5" />
+                                </Button>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground">
+                                จำนวนเดิม {booking.quantity} ใบ
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </Card>
 
             {/* Payment Method */}
