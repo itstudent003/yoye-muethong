@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EEventTypes } from "../types/enum";
 import { cn } from "@/lib/utils";
 import {
   CheckCircle2,
@@ -41,6 +42,14 @@ const mockBookingDetails: NonNullable<PaymentProps["booking"]> = {
     id: 1,
     name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
     poster: "/con.jpeg",
+    eventTypes: EEventTypes.ticket,
+    servicePrice: `
+<b>ค่ากด/ใบ:</b><br>
+• VIP Standing → 2,500<br>
+• Standing → 1,800<br>
+• Seat A → 1,200<br>
+• Seat B → 900
+`,
     showTime: "7-8 มกราคม 2026 (2 รอบ)",
     ticketInfo:
       "VIP Standing 8,500 / Standing 5,500 / Seat A 6,500 / Seat B 4,500",

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { BackStep } from "./backStep";
 import { Button } from "@/components/ui/button";
-import { Card, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,7 @@ export type BookingEvent = {
   name: string;
   poster: string;
   showTime: string;
+  servicePrice: string;
   ticketInfo: string;
   eventTypes: EEventTypes;
   serviceFee: string;
@@ -52,6 +53,20 @@ const mockEvents: BookingEvent[] = [
     name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
     eventTypes: EEventTypes.ticket,
     poster: "/placeholder-concert.jpg",
+    servicePrice: `
+<b>₊˚ʚ  ค่ากดและรายละเอียด FORCE BOOK FUNTOPIA FANCON  𓈒𓏸</b><br>
+<b>ค่ากด/ใบ:</b><br>
+( ไม่รับรีเควสโซน / ไม่รับที่นั่งติดกันทุกกรณี)<br>
+• 6,500 → 2,800<br>
+• 6,000 → 2,000<br>
+• 5,000 → 800<br>
+• 4,500 C3 →  1,500<br>
+• 4,500 B1 B5 →  1,000<br>
+• 3,500 → 1,000<br>
+• 3,000 → 800<br>
+• 2,500 → 900<br>
+• 2,000 → 800
+`,
     showTime: "7-8 มกราคม 2026 (2 รอบ)",
     ticketInfo:
       "VIP Standing 8,500 / Standing 5,500 / Seat A 6,500 / Seat B 4,500",
@@ -69,6 +84,13 @@ const mockEvents: BookingEvent[] = [
     name: "TREASURE CONCERT 2026 IN BANGKOK",
     eventTypes: EEventTypes.form,
     poster: "/placeholder-concert.jpg",
+    servicePrice: `
+<b>ค่ากด/ใบ:</b><br>
+• VIP ทุกโซน → 1,500<br>
+• Standing → 900<br>
+• Seat A → 800<br>
+• Seat B → 700
+`,
     showTime: "15 กุมภาพันธ์ 2026 (1 รอบ)",
     ticketInfo: "VIP 7,500 / Standing 4,500 / Seat A 5,500",
     serviceFee: "450 บาทต่อใบ",
@@ -84,16 +106,23 @@ const mockEvents: BookingEvent[] = [
     name: "SEVENTEEN FOLLOW TOUR IN BANGKOK",
     eventTypes: EEventTypes.ticket,
     poster: "/placeholder-concert.jpg",
+    servicePrice: `
+<b>ค่ากด/ใบ:</b><br>
+• VIP Standing → 2,500<br>
+• Standing → 1,800<br>
+• Seat A → 1,200<br>
+• Seat B → 900
+`,
     showTime: "20-21 มีนาคม 2026 (2 รอบ)",
     ticketInfo:
       "VIP Standing 9,000 / Standing 6,000 / Seat A 7,000 / Seat B 5,000",
     serviceFee: "550 บาทต่อใบ",
     note: "หากเต็มทุกโซน คืนค่ามัดจำเต็มจำนวน",
     zones: [
-      { name: "VIP Standing", price: 9000, available: true },
+      { name: "VIP Standing", price: 9000, available: false },
       { name: "Standing", price: 6000, available: false },
-      { name: "Seat A", price: 7000, available: true },
-      { name: "Seat B", price: 5000, available: true },
+      { name: "Seat A", price: 7000, available: false },
+      { name: "Seat B", price: 5000, available: false },
     ],
   },
 ];
@@ -109,7 +138,7 @@ export default function Event({ onBack, onSelect }: EventProps) {
   return (
     <div className="min-h-screen py-4 px-4">
       <div className="max-w-6xl mx-auto space-y-3">
-        <StepBooking currentStep={2} />
+        <StepBooking currentStep={1} />
 
         <BackStep onBack={onBack} />
 
@@ -133,58 +162,86 @@ export default function Event({ onBack, onSelect }: EventProps) {
 
         {/* Event Grid - poster & name only */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-          {filteredEvents.map((event, index) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-            >
-              <Card
-                className="overflow-hidden cursor-pointer hover:shadow-xl duration-300 border-2 hover:border-primary/50 py-0"
-                onClick={() => setSelectedEvent(event)}
-              >
-                {/* Poster */}
-                <div className="">
-                  <Image
-                    src="/con.jpeg"
-                    alt={event.name}
-                    width={600}
-                    height={400}
-                    className="object-cover w-full h-auto"
-                    priority={index === 0}
-                  />
-                </div>
+          {filteredEvents.map((event, index) => {
+            const isQueueAvailable = event.zones.some((zone) => zone.available);
+            const statusLabel = isQueueAvailable ? "คิวว่าง" : "คิวเต็ม";
+            const statusStyle = isQueueAvailable
+              ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
+              : "bg-rose-500/10 text-rose-600 border border-rose-500/30";
 
-                <div className=" space-y-2 p-5 pt-0">
-                  <h3 className="font-bold text-lg text-foreground line-clamp-2 leading-tight">
-                    {event.name}
-                  </h3>
-                  <CardFooter className="flex gap-2 w-full p-0">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedEvent(event);
-                      }}
+            return (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+              >
+                <Card
+                  className={`overflow-hidden hover:shadow-xl duration-300 border-2 py-0 ${
+                    isQueueAvailable
+                      ? "cursor-pointer hover:border-primary/50"
+                      : "opacity-70 cursor-not-allowed"
+                  }`}
+                  onClick={() => {
+                    if (isQueueAvailable) {
+                      setSelectedEvent(event);
+                    }
+                  }}
+                >
+                  {/* Poster */}
+                  <div className="relative">
+                    <Image
+                      src="/con.jpeg"
+                      alt={event.name}
+                      width={600}
+                      height={400}
+                      className="object-cover w-full h-auto"
+                      priority={index === 0}
+                    />
+                    <span
+                      className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full whitespace-nowrap shadow-sm ${statusStyle}`}
                     >
-                      ดูรายละเอียดงาน
-                    </Button>
-                    <Button
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelect(event);
-                      }}
-                    >
-                      เลือกงานนี้
-                    </Button>
-                  </CardFooter>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+                      {statusLabel}
+                    </span>
+                  </div>
+
+                  <div className=" space-y-2 p-5 pt-0">
+                    <h3 className="font-bold text-lg text-foreground line-clamp-2 leading-tight">
+                      {event.name}
+                    </h3>
+                    <CardFooter className="flex gap-2 w-full p-0">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        disabled={!isQueueAvailable}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isQueueAvailable) {
+                            setSelectedEvent(event);
+                          }
+                        }}
+                      >
+                        ดูรายละเอียดงาน
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        disabled={!isQueueAvailable}
+                        aria-disabled={!isQueueAvailable}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isQueueAvailable) {
+                            onSelect(event);
+                          }
+                        }}
+                      >
+                        {isQueueAvailable ? "เลือกงานนี้" : "คิวเต็ม"}
+                      </Button>
+                    </CardFooter>
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          })}
         </div>
 
         {filteredEvents.length === 0 && (
@@ -271,52 +328,14 @@ export default function Event({ onBack, onSelect }: EventProps) {
                         </div>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-primary" />
-                        โซนและราคา
-                      </h3>
-                      <div className="space-y-3">
-                        {selectedEvent.zones.map((zone, i) => (
-                          <div
-                            key={i}
-                            className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-xl border-2 ${
-                              zone.available
-                                ? "border-green-200 bg-green-50"
-                                : "border-gray-200 bg-gray-50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`w-3 h-3 rounded-full ${
-                                  zone.available
-                                    ? "bg-green-500"
-                                    : "bg-gray-400"
-                                }`}
-                              />
-                              <span className="font-semibold text-foreground">
-                                {zone.name}
-                              </span>
-                            </div>
-                            <div className="text-left sm:text-right">
-                              <p className="text-xl font-bold text-primary">
-                                ฿{zone.price.toLocaleString()}
-                              </p>
-                              <p
-                                className={`text-xs ${
-                                  zone.available
-                                    ? "text-green-600"
-                                    : "text-gray-500"
-                                }`}
-                              >
-                                {zone.available ? "เปิดรับ" : "เต็มแล้ว"}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <Card className="bg-gray-50 border border-border/60 p-4 text-sm text-muted-foreground">
+                      <div
+                        className="leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html: selectedEvent.servicePrice,
+                        }}
+                      />
+                    </Card>
                   </div>
                 </div>
 

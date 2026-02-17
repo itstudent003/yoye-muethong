@@ -14,12 +14,12 @@ const STORAGE_KEY = "yoye_booking_state";
 const PAYMENT_TIMEOUT_MS = 10 * 60 * 1000;
 
 type BookingFormData = {
-  firstName: string;
-  lastName: string;
+  nickName: string;
   showTimeId: string;
   zoneId: string;
   ticketCount: number;
   notes: string;
+  nameList?: string[];
 };
 
 type PersistedState = {
@@ -177,7 +177,7 @@ export default function Bookings() {
         <Condition
           eventType={selectedEvent.eventTypes}
           onBack={() => goToStep(steps[0].id)}
-          onNext={() => goToStep(steps[1].id)}
+          onNext={() => goToStep(steps[2].id)}
         />
       )}
       {step === steps[1].id && !selectedEvent && (

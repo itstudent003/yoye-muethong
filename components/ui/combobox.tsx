@@ -65,7 +65,7 @@ export function SingleCombobox({
           aria-invalid={ariaInvalid}
           disabled={disabled}
           className={cn(
-            "w-full justify-between overflow-hidden h-11 rounded-xl border-2 border-primary bg-background/60 px-4 text-base shadow-xs transition-[color,box-shadow]",
+            "w-full justify-between overflow-hidden h-10 rounded-md  border-primary bg-background/60 px-3.5 text-base shadow-xs transition-[color,box-shadow]",
             "focus-visible:ring-primary/50 focus-visible:ring-[3px] focus-visible:border-primary",
             "disabled:pointer-events-none disabled:opacity-50",
             className,
