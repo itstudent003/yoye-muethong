@@ -101,6 +101,7 @@ export default function BookingDetailPage() {
     Math.max(1, booking.quantity),
   );
   const [extraValues, setExtraValues] = useState<Record<number, string>>({});
+  const [isEditingZone, setIsEditingZone] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
@@ -110,7 +111,7 @@ export default function BookingDetailPage() {
   const selectedZone = booking.zones.find((z) => z.id === selectedZoneId);
   const ticketsToCharge = Math.min(adjustedQuantity, booking.quantity);
   const updatedTotal = selectedZone
-    ? selectedZone.price * ticketsToCharge
+    ? (selectedZone.price + (booking.serviceFee || 0)) * ticketsToCharge
     : booking.total;
 
   const extraFieldsValid = mockExtraFields.every(
@@ -192,19 +193,42 @@ export default function BookingDetailPage() {
           <div className="lg:col-span-2 space-y-4">
             {/* Zone Selection */}
             <Card className="p-5 space-y-4">
-              <div className="flex items-start gap-3">
-                <MapPin className="size-5 text-primary" />
-                <div className="space-y-2">
-                  <h3 className="text-base font-bold">โซน / ราคาบัตร</h3>
-                  <p className="text-gray-500 text-xs">
-                    ***
-                    กรณีลดจำนวนบัตรภายหลังทางร้านขอสงวนสิทธิ์ไม่คืนเงินมัดจำในส่วนที่ลดลง
-                    ***
-                  </p>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <MapPin className="size-5 text-primary mt-0.5" />
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold">โซน / ราคาบัตร</h3>
+                    <p className="text-gray-500 text-xs text-muted-foreground w-full max-w-[220px] xs:max-w-none leading-tight">
+                      ***
+                      กรณีลดจำนวนบัตรภายหลังทางร้านขอสงวนสิทธิ์ไม่คืนเงินมัดจำในส่วนที่ลดลง
+                      ***
+                    </p>
+                  </div>
                 </div>
+                {!isEditingZone ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs shrink-0"
+                    onClick={() => setIsEditingZone(true)}
+                  >
+                    เปลี่ยนราคาบัตรหลัก
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs shrink-0"
+                    onClick={() => setIsEditingZone(false)}
+                  >
+                    บันทึก
+                  </Button>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {booking.zones.map((zone) => (
+                {(isEditingZone
+                  ? booking.zones
+                  : booking.zones.filter((z) => z.id === selectedZoneId)
+                ).map((zone) => (
                   <div
                     key={zone.id}
                     className={`relative rounded-xl border-2 p-4 transition-all duration-200 ${
@@ -217,7 +241,7 @@ export default function BookingDetailPage() {
                   >
                     <button
                       type="button"
-                      disabled={!zone.available}
+                      disabled={!zone.available || !isEditingZone}
                       onClick={() => setSelectedZoneId(zone.id)}
                       className="w-full text-left"
                     >
@@ -233,9 +257,13 @@ export default function BookingDetailPage() {
                       </div>
                       <p className="text-lg font-black text-primary mt-1">
                         ฿{zone.price.toLocaleString()}
+                        <span className="text-xs text-muted-foreground font-normal ml-1">
+                          + ( ค่ากดบัตร {booking.serviceFee.toLocaleString()}
+                          /ใบ )
+                        </span>
                       </p>
                     </button>
-                    {selectedZoneId === zone.id && (
+                    {selectedZoneId === zone.id && isEditingZone && (
                       <div className="mt-3 pt-3 border-t border-primary/20 space-y-2">
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-semibold text-muted-foreground">
@@ -317,7 +345,7 @@ export default function BookingDetailPage() {
                   <div>
                     <p className="font-semibold text-sm">ฝากร้านจ่าย</p>
                     <p className="text-xs text-muted-foreground">
-                      ร้านชำระค่าบัตรให้ก่อน แล้วเรียกเก็บภายหลัง
+                      โอนค่าบัตรให้ร้าน ก่อนวันกด 1 วัน
                     </p>
                   </div>
                 </label>
@@ -376,35 +404,38 @@ export default function BookingDetailPage() {
 
             {/* Price Summary & Submit */}
             <Card className="p-5 space-y-4">
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-2xl" />
-                <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30 rounded-2xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        ยอดค่าบัตรรวม
+              {paymentMethod === "store_pay" && (
+                <div className="relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-2xl" />
+                  <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          ยอดค่าบัตรรวม
+                        </div>
+                        <div className="text-3xl font-black text-primary">
+                          ฿{updatedTotal.toLocaleString()}
+                        </div>
                       </div>
-                      <div className="text-3xl font-black text-primary">
-                        ฿{updatedTotal.toLocaleString()}
+                      <div className="text-right space-y-1">
+                        <div className="text-xs text-muted-foreground font-medium">
+                          {selectedZone?.name ?? booking.zone}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {ticketsToCharge} ใบ × (฿
+                          {(selectedZone?.price ?? 0).toLocaleString()} +{" "}
+                          {booking.serviceFee.toLocaleString()})
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">
-                        {selectedZone?.name ?? booking.zone}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {ticketsToCharge} ใบ × ฿
-                        {(selectedZone?.price ?? 0).toLocaleString()}
-                      </div>
+                    <div className="pt-2 border-t border-primary/20">
+                      <p className="text-[11px] text-amber-600 font-medium leading-relaxed">
+                        ⚠️ ราคานี้ยังไม่รวมภาษีมูลค่าเพิ่ม 7%
+                      </p>
                     </div>
-                  </div>
-                  <div className="pt-2 border-t border-primary/20">
-                    <p className="text-[11px] text-amber-600 font-medium leading-relaxed">
-                      ⚠️ ราคานี้ยังไม่รวมค่ากดบัตร และภาษีมูลค่าเพิ่ม 7%
-                    </p>
                   </div>
                 </div>
-              </div>
+              )}
 
               <Button className="w-full h-11" disabled={!canSubmit} asChild>
                 <Link href="/tracking">ยืนยันข้อมูล</Link>
