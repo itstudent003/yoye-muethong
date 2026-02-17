@@ -31,82 +31,6 @@ const initialForm = {
   nameList: [""],
 };
 
-type ShowTimeOption = {
-  id: number;
-  name: string;
-  time: number;
-  zones: ZoneOption[];
-};
-
-type ZoneOption = {
-  id: number;
-  name: string;
-  remaining: number;
-  ticketPrice: number;
-  status: EZoneStatus;
-};
-
-type ConcertData = {
-  id: number;
-  concertCode: string;
-  name: string;
-  poster: string;
-  eventTypes: EEventTypes;
-  showTime: ShowTimeOption[];
-};
-
-const mockConcertData: ConcertData = {
-  id: 1,
-  concertCode: "BP-BKK-2026",
-  name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
-  poster: "/con.jpeg",
-  eventTypes: EEventTypes.form,
-  showTime: [
-    {
-      id: 101,
-      name: "25 เมษายน 2569",
-      time: new Date("2026-01-07T19:00:00+07:00").getTime(),
-      zones: [
-        {
-          id: 1,
-          name: "VIP Standing",
-          remaining: 24,
-          ticketPrice: 8500,
-          status: EZoneStatus.AVAILABLE,
-        },
-        {
-          id: 2,
-          name: "Standing",
-          remaining: 42,
-          ticketPrice: 5500,
-          status: EZoneStatus.AVAILABLE,
-        },
-        {
-          id: 9,
-          name: "Standing",
-          remaining: 0,
-          ticketPrice: 5500,
-          status: EZoneStatus.TEMP_FULL,
-        },
-        {
-          id: 10,
-          name: "Standing",
-          remaining: 0,
-          ticketPrice: 5500,
-          status: EZoneStatus.SOLD_OUT,
-        },
-        {
-          id: 11,
-          name: "Standing",
-          remaining: 42,
-          ticketPrice: 5500,
-          status: EZoneStatus.AVAILABLE,
-        },
-      ],
-    },
-  ],
-};
-
 export default function BookingInfo({
   event,
   onBack,
@@ -114,7 +38,7 @@ export default function BookingInfo({
   savedForm,
   onFormChange,
 }: BookingInfoProps) {
-  const concertData = mockConcertData;
+  const concertData = event;
   const [form, setForm] = useState(() => ({
     ...initialForm,
     ...savedForm,
@@ -170,32 +94,7 @@ export default function BookingInfo({
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const addNameToList = () => {
-    setForm((prev) => ({
-      ...prev,
-      nameList: [...prev.nameList, ""],
-    }));
-  };
-
-  const removeNameFromList = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      nameList: prev.nameList.filter((_: string, i: number) => i !== index),
-    }));
-  };
-
-  const updateNameInList = (index: number, value: string) => {
-    setForm((prev) => ({
-      ...prev,
-      nameList: prev.nameList.map((name: string, i: number) =>
-        i === index ? value : name,
-      ),
-    }));
-  };
-
-  const serviceFeeText = event?.serviceFee ?? "";
-
-  const selectedShowTime = concertData.showTime.find(
+  const selectedShowTime = concertData.showTimeOptions?.find(
     (st) => st.id.toString() === form.showTimeId,
   );
 
@@ -203,10 +102,17 @@ export default function BookingInfo({
     (z) => z.id.toString() === form.zoneId,
   );
 
-  const depositPrice = form.ticketCount * 100;
+  const depositPrice =
+    concertData.eventTypes === EEventTypes.form
+      ? form.ticketCount * 100
+      : form.ticketCount * (selectedZone?.servicePrice ?? 0);
 
   const canProceed =
-    Boolean(form.nickName) && Boolean(form.showTimeId) && Boolean(form.zoneId);
+    concertData.eventTypes === EEventTypes.form
+      ? Boolean(form.nickName)
+      : Boolean(form.nickName) &&
+        Boolean(form.showTimeId) &&
+        Boolean(form.zoneId);
 
   return (
     <div className="min-h-screen flex flex-col py-3 px-3">
@@ -214,93 +120,79 @@ export default function BookingInfo({
         <StepBooking currentStep={3} />
         <BackStep onBack={onBack} />
 
+        <h2 className="text-xl font-bold pb-1">{concertData.name}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-          {/* Poster Card - Fixed height on desktop */}
-          <Card className="p-2 flex flex-col h-auto lg:h-[65vh]  border-primary">
-            <div className="relative rounded-md overflow-hidden mb-2 flex-shrink-0">
-              <Image
-                src={concertData.poster}
-                alt={concertData.name}
-                width={600}
-                height={750}
-                className="w-full aspect-[4/5] object-cover"
-                priority
-              />
+          {/* Left Column: Personal Info */}
+          <Card className="lg:col-span-1 h-fit p-4 border-primary space-y-4 shadow-lg shadow-primary/5">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor={firstNameFieldId}
+                  className="text-sm font-semibold text-foreground flex items-center gap-1.5"
+                >
+                  ชื่อเล่น
+                  <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  id={firstNameFieldId}
+                  value={form.nickName}
+                  onChange={(e) => updateField("nickName", e.target.value)}
+                  placeholder="กรอกชื่อเล่น"
+                  className="h-10 focus:border-primary transition-all duration-300 bg-background/50"
+                />
+              </div>
+
+              {concertData.eventTypes !== EEventTypes.form && (
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    รอบการแสดง
+                    <span className="text-destructive">*</span>
+                  </div>
+                  <SingleCombobox
+                    options={
+                      concertData.showTimeOptions?.map((st) => ({
+                        value: st.id.toString(),
+                        label: st.name,
+                      })) ?? []
+                    }
+                    value={form.showTimeId}
+                    onChange={(value) => {
+                      updateField("showTimeId", value);
+                      updateField("zoneId", "");
+                    }}
+                    placeholder="เลือกรอบการแสดง"
+                    searchPlaceholder="ค้นหารอบการแสดง..."
+                    emptyText="ไม่พบรอบการแสดง"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label
+                  htmlFor={notesFieldId}
+                  className="text-sm font-semibold text-foreground"
+                >
+                  หมายเหตุ
+                </label>
+                <Textarea
+                  id={notesFieldId}
+                  value={form.notes}
+                  onChange={(e) => updateField("notes", e.target.value)}
+                  placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"
+                  className="min-h-[100px] focus:border-primary transition-all duration-300 bg-background/50 resize-none"
+                />
+              </div>
             </div>
-            <h2 className="text-base font-bold text-foreground leading-tight">
-              {concertData.name}
-            </h2>
           </Card>
 
-          {/* Main Form Card - Modern Design */}
-          <Card className="p-2 lg:col-span-2 flex flex-col h-auto lg:h-[65vh] relative overflow-hidden  border-primary">
+          {/* Right Column: Zone Selection & Cart */}
+          <Card className="p-2 lg:col-span-2 flex flex-col h-auto lg:h-[65vh] relative overflow-hidden border-primary">
             <div
               ref={scrollContainerRef}
               className="space-y-6 flex-1 overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
             >
-              <div className="rounded-2xl  border-primary backdrop-blur-sm bg-background/80 p-4 space-y-5">
-                {/* Personal Info Section */}
+              <div className="rounded-2xl border-primary backdrop-blur-sm bg-background/80 p-4 space-y-5">
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor={firstNameFieldId}
-                        className="text-sm font-semibold text-foreground flex items-center gap-1.5"
-                      >
-                        ชื่อเล่น
-                        <span className="text-destructive">*</span>
-                      </label>
-                      <Input
-                        id={firstNameFieldId}
-                        value={form.nickName}
-                        onChange={(e) =>
-                          updateField("nickName", e.target.value)
-                        }
-                        placeholder="กรอกชื่อเล่น"
-                        className="h-10  focus:border-primary transition-all duration-300 bg-background/50"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                        รอบการแสดง
-                        <span className="text-destructive">*</span>
-                      </div>
-                      <SingleCombobox
-                        options={concertData.showTime.map((st) => ({
-                          value: st.id.toString(),
-                          label: st.name,
-                        }))}
-                        value={form.showTimeId}
-                        onChange={(value) => {
-                          updateField("showTimeId", value);
-                          updateField("zoneId", "");
-                        }}
-                        placeholder="เลือกรอบการแสดง"
-                        searchPlaceholder="ค้นหารอบการแสดง..."
-                        emptyText="ไม่พบรอบการแสดง"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor={notesFieldId}
-                      className="text-sm font-semibold text-foreground"
-                    >
-                      หมายเหตุ
-                    </label>
-                    <Textarea
-                      id={notesFieldId}
-                      value={form.notes}
-                      onChange={(e) => updateField("notes", e.target.value)}
-                      placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"
-                      className="min-h-[60px]  focus:border-primary transition-all duration-300 bg-background/50 resize-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="border-t border-border/60 pt-4 space-y-3">
                   <div className="flex flex-wrap items-center gap-3 justify-between">
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -361,62 +253,125 @@ export default function BookingInfo({
                   <div className="space-y-2">
                     {concertData.eventTypes === EEventTypes.form ? (
                       <div className="space-y-3">
-                        {form.nameList.map((name, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <div className="flex-1">
-                              <Input
-                                value={name}
-                                onChange={(e) =>
-                                  updateNameInList(index, e.target.value)
-                                }
-                                placeholder={`ชื่อรายการที่ ${index + 1}`}
-                                className="h-10 border-2 focus:border-primary transition-all duration-300 bg-background/50"
-                              />
+                        {(() => {
+                          let statusColor = "bg-green-500";
+                          let statusShadow = "shadow-green-500/50";
+                          let remainingTextColor = "text-green-600";
+
+                          if (
+                            concertData.statusEvent === EZoneStatus.TEMP_FULL
+                          ) {
+                            statusColor = "bg-amber-500";
+                            statusShadow = "shadow-amber-500/50";
+                            remainingTextColor = "text-amber-600";
+                          } else if (
+                            concertData.statusEvent === EZoneStatus.SOLD_OUT
+                          ) {
+                            statusColor = "bg-red-500";
+                            statusShadow = "shadow-red-500/50";
+                            remainingTextColor = "text-red-600";
+                          }
+
+                          const zoneStatusLabel = {
+                            [EZoneStatus.AVAILABLE]: "คิวว่าง",
+                            [EZoneStatus.TEMP_FULL]: "รอยืนยัน",
+                            [EZoneStatus.SOLD_OUT]: "คิวเต็ม",
+                          }[concertData.statusEvent];
+
+                          return (
+                            <div className="relative overflow-hidden rounded-xl border-2 border-primary/20 bg-background/50 p-3 transition-all duration-300 hover:border-primary/40">
+                              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
+                                  <span className="font-semibold text-lg px-1">
+                                    จำนวนรายชื่อ
+                                  </span>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <div className="px-3 py-1 rounded-xl bg-primary/10">
+                                      <p className="font-bold text-sm text-primary">
+                                        ฿
+                                        {concertData.servicePriceForm?.toLocaleString() ??
+                                          0}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <div
+                                        className={`w-1.5 h-1.5 rounded-full ${statusColor}`}
+                                      />
+                                      <p
+                                        className={`text-xs font-medium ${remainingTextColor}`}
+                                      >
+                                        {zoneStatusLabel}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 justify-between md:justify-end w-full md:w-auto">
+                                  <div className="flex items-center gap-1.5 flex-shrink-0 p-1 rounded-lg bg-muted/50 border border-border">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
+                                      disabled={form.ticketCount <= 1}
+                                      onClick={() =>
+                                        updateField(
+                                          "ticketCount",
+                                          Math.max(1, form.ticketCount - 1),
+                                        )
+                                      }
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M20 12H4"
+                                        />
+                                      </svg>
+                                    </Button>
+
+                                    <div className="w-8 text-center">
+                                      <span className="text-sm font-bold">
+                                        {form.ticketCount}
+                                      </span>
+                                    </div>
+
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                                      onClick={() =>
+                                        updateField(
+                                          "ticketCount",
+                                          form.ticketCount + 1,
+                                        )
+                                      }
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M12 4v16m8-8H4"
+                                        />
+                                      </svg>
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            {form.nameList.length > 1 && (
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-10 w-10 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
-                                onClick={() => removeNameFromList(index)}
-                              >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M6 18L18 6M6 6l12 12"
-                                  />
-                                </svg>
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                        <Button
-                          variant="outline"
-                          className="w-full h-10 gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                          onClick={addNameToList}
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                          เพิ่มรายชื่อ
-                        </Button>
+                          );
+                        })()}
                       </div>
                     ) : !form.showTimeId ? (
                       <div className="text-center py-12 space-y-3">
@@ -500,20 +455,18 @@ export default function BookingInfo({
                                       className={`w-2 h-2 rounded-full ${statusColor} ${statusShadow}`}
                                     />
                                     <h3 className="font-bold text-base truncate text-foreground">
-                                      {zone.name}
+                                      {zone.name} (฿
+                                      {zone.ticketPrice.toLocaleString()})
                                     </h3>
                                   </div>
 
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <div className="px-3 py-1 rounded-xl bg-primary/5 border border-primary/20">
+                                    <div className="px-3 py-1 rounded-xl">
                                       <p className="font-bold text-sm text-primary">
-                                        ฿{zone.ticketPrice.toLocaleString()}
+                                        ฿
+                                        {zone.servicePrice?.toLocaleString() ??
+                                          0}
                                       </p>
-                                      {serviceFeeText && (
-                                        <p className="text-[10px] text-muted-foreground font-medium">
-                                          ค่ากด {serviceFeeText}
-                                        </p>
-                                      )}
                                     </div>
                                     <div className="flex items-center gap-1">
                                       <div
@@ -648,34 +601,44 @@ export default function BookingInfo({
 
             {/* Price Summary & Submit */}
             <div className="mt-3 pt-3 border-t flex-shrink-0 space-y-3">
-              {selectedZone && (
-                <div className="relative overflow-hidden rounded-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-2xl" />
-                  <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30 rounded-2xl">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          ยอดมัดจำรวม
-                        </div>
-                        <div className="text-3xl font-black text-primary">
-                          ฿{depositPrice.toLocaleString()}
-                        </div>
+              <div className="relative overflow-hidden rounded-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-2xl" />
+                <div className="relative p-5 backdrop-blur-sm bg-background/80 border-2 border-primary/30 rounded-2xl">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        ยอดมัดจำรวม
                       </div>
-                      <div className="text-right space-y-1">
-                        <div className="text-xs text-muted-foreground font-medium">
-                          {selectedZone.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          มัดจำ {form.ticketCount} ใบ × ฿100
-                        </div>
-                        <div className="text-sm font-semibold text-primary">
-                          ฿{depositPrice.toLocaleString()}
-                        </div>
+                      <div className="text-3xl font-black text-primary">
+                        ฿{depositPrice.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">
+                        {selectedZone?.name ??
+                          (concertData.eventTypes === EEventTypes.form
+                            ? "การจองคิว"
+                            : "ยังไม่ได้เลือกโซน")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {concertData.eventTypes === EEventTypes.form ? (
+                          <>มัดจำ {form.ticketCount} รายชื่อ × ฿100</>
+                        ) : selectedZone ? (
+                          <>
+                            มัดจำ {form.ticketCount} ใบ × ฿
+                            {(selectedZone.servicePrice ?? 0).toLocaleString()}
+                          </>
+                        ) : (
+                          <>เลือกโซนเพื่อคำนวณค่ามัดจำ</>
+                        )}
+                      </div>
+                      <div className="text-sm font-semibold text-primary">
+                        ฿{depositPrice.toLocaleString()}
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
               <Button
                 className="w-full h-10"

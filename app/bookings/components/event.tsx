@@ -3,17 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
-import {
-  Search,
-  Calendar,
-  Tag,
-  Ticket,
-  Receipt,
-  StickyNote,
-} from "lucide-react";
+import { Search, Calendar, Receipt, StickyNote, Tag } from "lucide-react";
 import { BackStep } from "./backStep";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardFooter } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -23,109 +16,16 @@ import {
 } from "@/components/ui/dialog";
 import StepBooking from "./stepBooking";
 import { Input } from "@/components/ui/input";
-import { EEventTypes } from "../types/enum";
+import { mockEvents } from "@/mockData/event.data";
+import { EZoneStatus, EEventTypes } from "../types/enum";
+import type { BookingEvent } from "@/mockData/event.data";
 
-export type BookingEvent = {
-  id: number;
-  name: string;
-  poster: string;
-  showTime: string;
-  servicePrice: string;
-  ticketInfo: string;
-  eventTypes: EEventTypes;
-  serviceFee: string;
-  note: string;
-  zones: {
-    name: string;
-    price: number;
-    available: boolean;
-  }[];
-};
+export type { BookingEvent } from "@/mockData/event.data";
 
-interface EventProps {
+export interface EventProps {
   readonly onBack: () => void;
   readonly onSelect: (event: BookingEvent) => void;
 }
-
-const mockEvents: BookingEvent[] = [
-  {
-    id: 1,
-    name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
-    eventTypes: EEventTypes.ticket,
-    poster: "/placeholder-concert.jpg",
-    servicePrice: `
-<b>₊˚ʚ  ค่ากดและรายละเอียด FORCE BOOK FUNTOPIA FANCON  𓈒𓏸</b><br>
-<b>ค่ากด/ใบ:</b><br>
-( ไม่รับรีเควสโซน / ไม่รับที่นั่งติดกันทุกกรณี)<br>
-• 6,500 → 2,800<br>
-• 6,000 → 2,000<br>
-• 5,000 → 800<br>
-• 4,500 C3 →  1,500<br>
-• 4,500 B1 B5 →  1,000<br>
-• 3,500 → 1,000<br>
-• 3,000 → 800<br>
-• 2,500 → 900<br>
-• 2,000 → 800
-`,
-    showTime: "7-8 มกราคม 2026 (2 รอบ)",
-    ticketInfo:
-      "VIP Standing 8,500 / Standing 5,500 / Seat A 6,500 / Seat B 4,500",
-    serviceFee: "500 บาทต่อใบ",
-    note: "ลำดับกดตามเวลาชำระมัดจำ - สลับโซนได้ถ้ายินยอม",
-    zones: [
-      { name: "VIP Standing", price: 8500, available: true },
-      { name: "Standing", price: 5500, available: true },
-      { name: "Seat A", price: 6500, available: false },
-      { name: "Seat B", price: 4500, available: true },
-    ],
-  },
-  {
-    id: 2,
-    name: "TREASURE CONCERT 2026 IN BANGKOK",
-    eventTypes: EEventTypes.form,
-    poster: "/placeholder-concert.jpg",
-    servicePrice: `
-<b>ค่ากด/ใบ:</b><br>
-• VIP ทุกโซน → 1,500<br>
-• Standing → 900<br>
-• Seat A → 800<br>
-• Seat B → 700
-`,
-    showTime: "15 กุมภาพันธ์ 2026 (1 รอบ)",
-    ticketInfo: "VIP 7,500 / Standing 4,500 / Seat A 5,500",
-    serviceFee: "450 บาทต่อใบ",
-    note: "รับกดเฉพาะรอบบ่าย - ขออนุญาตรวบยอดชำระในครั้งเดียว",
-    zones: [
-      { name: "VIP", price: 7500, available: true },
-      { name: "Standing", price: 4500, available: true },
-      { name: "Seat A", price: 5500, available: true },
-    ],
-  },
-  {
-    id: 3,
-    name: "SEVENTEEN FOLLOW TOUR IN BANGKOK",
-    eventTypes: EEventTypes.ticket,
-    poster: "/placeholder-concert.jpg",
-    servicePrice: `
-<b>ค่ากด/ใบ:</b><br>
-• VIP Standing → 2,500<br>
-• Standing → 1,800<br>
-• Seat A → 1,200<br>
-• Seat B → 900
-`,
-    showTime: "20-21 มีนาคม 2026 (2 รอบ)",
-    ticketInfo:
-      "VIP Standing 9,000 / Standing 6,000 / Seat A 7,000 / Seat B 5,000",
-    serviceFee: "550 บาทต่อใบ",
-    note: "หากเต็มทุกโซน คืนค่ามัดจำเต็มจำนวน",
-    zones: [
-      { name: "VIP Standing", price: 9000, available: false },
-      { name: "Standing", price: 6000, available: false },
-      { name: "Seat A", price: 7000, available: false },
-      { name: "Seat B", price: 5000, available: false },
-    ],
-  },
-];
 
 export default function Event({ onBack, onSelect }: EventProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -161,13 +61,15 @@ export default function Event({ onBack, onSelect }: EventProps) {
         </motion.div>
 
         {/* Event Grid - poster & name only */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
+        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredEvents.map((event, index) => {
-            const isQueueAvailable = event.zones.some((zone) => zone.available);
+            const isQueueAvailable = event.statusEvent?.includes(
+              EZoneStatus.AVAILABLE,
+            );
             const statusLabel = isQueueAvailable ? "คิวว่าง" : "คิวเต็ม";
             const statusStyle = isQueueAvailable
-              ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
-              : "bg-rose-500/10 text-rose-600 border border-rose-500/30";
+              ? "bg-emerald-500 text-white border border-emerald-500/30 font-semibold px-4 py-2 text-sm"
+              : "bg-rose-500 text-white border border-rose-500/30 font-semibold px-4 py-2 text-sm";
 
             return (
               <motion.div
@@ -175,9 +77,10 @@ export default function Event({ onBack, onSelect }: EventProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="h-full"
               >
                 <Card
-                  className={`overflow-hidden hover:shadow-xl duration-300 border-2 py-0 ${
+                  className={`h-full flex flex-col overflow-hidden hover:shadow-xl duration-300 border-2 py-0 ${
                     isQueueAvailable
                       ? "cursor-pointer hover:border-primary/50"
                       : "opacity-70 cursor-not-allowed"
@@ -205,11 +108,11 @@ export default function Event({ onBack, onSelect }: EventProps) {
                     </span>
                   </div>
 
-                  <div className=" space-y-2 p-5 pt-0">
+                  <div className="space-y-2 p-5 pt-0 flex-1 flex flex-col">
                     <h3 className="font-bold text-lg text-foreground line-clamp-2 leading-tight">
                       {event.name}
                     </h3>
-                    <CardFooter className="flex gap-2 w-full p-0">
+                    <CardFooter className="flex gap-2 w-full p-0 mt-auto">
                       <Button
                         variant="outline"
                         className="flex-1"
@@ -265,7 +168,7 @@ export default function Event({ onBack, onSelect }: EventProps) {
           <DialogContent className="sm:max-w-5xl max-h-[90vh] p-0 sm:p-0">
             {selectedEvent && (
               <div className="flex h-full max-h-[90vh] flex-col">
-                <DialogHeader className="border-b px-6 py-4">
+                <DialogHeader className="border-b px-6 py-6">
                   <DialogTitle className="text-2xl font-black text-foreground pr-4">
                     {selectedEvent.name}
                   </DialogTitle>
@@ -275,10 +178,27 @@ export default function Event({ onBack, onSelect }: EventProps) {
                   <div className="grid gap-6 md:grid-cols-2 md:gap-8">
                     <div className="space-y-4 text-foreground">
                       <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
+                          <Tag className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              ประเภทงาน
+                            </p>
+                            <p className="font-semibold">
+                              {selectedEvent.eventTypes === EEventTypes.form
+                                ? "งานฟอร์ม"
+                                : "งานกดบัตร"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
                         <Calendar className="w-5 h-5 text-primary" />
                         <div>
                           <p className="text-sm text-muted-foreground">
-                            รอบการแสดง
+                            {selectedEvent.eventTypes === EEventTypes.form
+                              ? "วันที่กรอกฟอร์ม"
+                              : "รอบการแสดง"}
                           </p>
                           <p className="font-semibold">
                             {selectedEvent.showTime}
@@ -286,35 +206,17 @@ export default function Event({ onBack, onSelect }: EventProps) {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Ticket className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            ราคาบัตร / โซน
-                          </p>
-                          <p className="font-semibold">
-                            {selectedEvent.ticketInfo}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Ticket className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            ราคาบัตร / โซน
-                          </p>
-                          <p className="font-semibold">
-                            {selectedEvent.ticketInfo}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
                         <Receipt className="w-5 h-5 text-primary" />
                         <div>
                           <p className="text-sm text-muted-foreground">
-                            ค่ากด / ต่อใบ
+                            {selectedEvent.eventTypes === EEventTypes.form
+                              ? "ค่ากด/รายชื่อ"
+                              : "ราคาประมาณค่ากด"}
                           </p>
                           <p className="font-semibold">
-                            {selectedEvent.serviceFee}
+                            {selectedEvent.eventTypes === EEventTypes.form
+                              ? selectedEvent.servicePriceForm
+                              : "2,500 - 6,500"}
                           </p>
                         </div>
                       </div>
@@ -328,14 +230,90 @@ export default function Event({ onBack, onSelect }: EventProps) {
                         </div>
                       </div>
                     </div>
-                    <Card className="bg-gray-50 border border-border/60 p-4 text-sm text-muted-foreground">
-                      <div
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{
-                          __html: selectedEvent.servicePrice,
-                        }}
-                      />
-                    </Card>
+                    {selectedEvent.eventTypes !== EEventTypes.form && (
+                      <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2">
+                        {selectedEvent.showTimeOptions?.[0]?.zones.map(
+                          (zone) => {
+                            let statusColor = "bg-green-500";
+                            let statusShadow = "shadow-green-500/50";
+                            let borderColor = "border-green-500/20";
+                            let bgGradient = "from-green-500/5 to-transparent";
+                            let remainingTextColor = "text-green-600";
+
+                            if (zone.status === EZoneStatus.SOLD_OUT) {
+                              statusColor = "bg-red-500";
+                              statusShadow = "shadow-red-500/50";
+                              borderColor = "border-red-500/20";
+                              bgGradient = "from-red-500/5 to-transparent";
+                            } else if (zone.status === EZoneStatus.TEMP_FULL) {
+                              statusColor = "bg-amber-500";
+                              statusShadow = "shadow-amber-500/50";
+                              borderColor = "border-amber-500/20";
+                              bgGradient = "from-amber-500/5 to-transparent";
+                              remainingTextColor = "text-amber-600";
+                            }
+                            const zoneStatusLabel = {
+                              [EZoneStatus.AVAILABLE]: "คิวว่าง",
+                              [EZoneStatus.TEMP_FULL]: "รอยืนยัน",
+                              [EZoneStatus.SOLD_OUT]: (
+                                <span className="text-red-600">คิวเต็ม</span>
+                              ),
+                            }[zone.status];
+
+                            return (
+                              <div
+                                key={zone.id}
+                                className={`
+                              relative group overflow-hidden rounded-xl transition-all duration-300
+                              border-2 ${borderColor}
+                              ${zone.remaining === 0 ? "opacity-60" : ""}
+                            `}
+                              >
+                                <div
+                                  className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-50`}
+                                />
+
+                                <div className="relative p-3 backdrop-blur-sm bg-background/50">
+                                  <div className="flex flex-col gap-1">
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className={`w-2 h-2 rounded-full ${statusColor} ${statusShadow}`}
+                                      />
+                                      <h3 className="font-bold text-base truncate text-foreground">
+                                        {zone.name} (฿
+                                        {zone.ticketPrice.toLocaleString()})
+                                      </h3>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <div className="px-3 py-1 rounded-xl">
+                                        <p className="font-bold text-sm text-primary">
+                                          ฿
+                                          {zone.servicePrice?.toLocaleString() ??
+                                            0}
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <div
+                                          className={`w-1 h-1 rounded-full ${statusColor}`}
+                                        />
+                                        <p
+                                          className={`text-xs font-medium ${remainingTextColor}`}
+                                        >
+                                          {zone.remaining > 0
+                                            ? `เหลือ ${zone.remaining} คิว`
+                                            : zoneStatusLabel}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          },
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 

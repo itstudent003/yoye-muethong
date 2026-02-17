@@ -8,7 +8,10 @@ export const BackStep = ({ onBack }: BackStepProps) => {
   return (
     <button
       type="button"
-      onClick={onBack}
+      onClick={() => {
+        localStorage.removeItem("yoye_booking_state");
+        onBack();
+      }}
       className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
     >
       <ArrowLeft className="w-4 h-4" />

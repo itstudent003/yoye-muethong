@@ -7,5 +7,4 @@ export enum EZoneStatus {
 export enum EEventTypes {
   ticket = "ticket",
   form = "form",
-  all = "all",
 }

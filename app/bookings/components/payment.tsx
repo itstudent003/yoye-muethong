@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EEventTypes } from "../types/enum";
+import { EEventTypes, EZoneStatus } from "../types/enum";
 import { cn } from "@/lib/utils";
 import {
   CheckCircle2,
@@ -17,7 +17,10 @@ import {
   ShieldCheck,
   UploadCloud,
   Wallet,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 
 interface PaymentProps {
@@ -43,19 +46,12 @@ const mockBookingDetails: NonNullable<PaymentProps["booking"]> = {
     name: "BLACKPINK WORLD TOUR [BORN PINK] IN BANGKOK",
     poster: "/con.jpeg",
     eventTypes: EEventTypes.ticket,
-    servicePrice: `
-<b>ค่ากด/ใบ:</b><br>
-• VIP Standing → 2,500<br>
-• Standing → 1,800<br>
-• Seat A → 1,200<br>
-• Seat B → 900
-`,
     showTime: "7-8 มกราคม 2026 (2 รอบ)",
     ticketInfo:
       "VIP Standing 8,500 / Standing 5,500 / Seat A 6,500 / Seat B 4,500",
-    serviceFee: "500 บาทต่อใบ",
     note: "ลำดับคิวตามเวลาชำระมัดจำ - สลับโซนได้ถ้ายินยอม",
-    zones: [],
+    statusEvent: EZoneStatus.AVAILABLE,
+    servicePriceForm: 500,
   },
   bookingCode: "YJI-BP-2026-001",
   showTime: "25 เมษายน 2569 (19:00 น.)",
@@ -139,6 +135,7 @@ export default function Payment({
 
   return (
     <div className="min-h-screen py-4 px-4">
+      <Toaster position="top-center" richColors />
       <div className="max-w-5xl mx-auto space-y-4">
         <StepBooking currentStep={4} />
         <BackStep onBack={onBack} />
@@ -173,13 +170,13 @@ export default function Payment({
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">ค่าบริการร้าน</span>
                 <span className="font-semibold">
-                  ฿{booking.serviceFee.toLocaleString()}
+                  ฿{(booking.serviceFee * booking.quantity).toLocaleString()}
                 </span>
               </div>
               <div className="border-t pt-3 flex items-center justify-between">
                 <span className="text-muted-foreground">ยอดที่ต้องโอน</span>
                 <span className="text-2xl font-black text-primary">
-                  ฿{booking.total.toLocaleString()}
+                  ฿{(booking.quantity * 100).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -249,8 +246,20 @@ export default function Payment({
                   <span className="text-sm text-muted-foreground">
                     เลขที่บัญชี
                   </span>
-                  <span className="font-mono font-bold text-lg">
+                  <span className="font-mono font-bold text-lg flex items-center gap-2">
                     220-3-51923-3
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        navigator.clipboard.writeText("220-3-51923-3");
+                        toast.success("คัดลอกเลขบัญชีแล้ว");
+                      }}
+                      className="p-1 hover:bg-muted rounded-md transition-colors"
+                    >
+                      <Copy className="w-4 h-4 text-muted-foreground" />
+                    </button>
                   </span>
                 </div>
               </div>
@@ -263,10 +272,10 @@ export default function Payment({
               }
               className="w-full"
             >
-              <TabsList className="mb-3">
-                <TabsTrigger value="instant">เช็คสลิปทันที</TabsTrigger>
+              <TabsList className="mb-3 w-full grid grid-cols-2">
+                <TabsTrigger value="instant">⚡ ตรวจสลิปทันที</TabsTrigger>
                 <TabsTrigger value="international">
-                  อัปโหลดสลิป (ต่างชาติ)
+                  📎 แนบสลิปโอนเงิน
                 </TabsTrigger>
               </TabsList>
 
@@ -364,11 +373,12 @@ export default function Payment({
               <TabsContent value="international" className="space-y-3">
                 <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
                   <div className="font-semibold text-primary flex items-center gap-2">
-                    <ShieldCheck className="size-4" /> สำหรับผู้โอนจากต่างประเทศ
+                    <ShieldCheck className="size-4" />{" "}
+                    ใช้กรณีระบบตรวจสอบสลิปไม่ได้ หรือโอนจากต่างประเทศ
                   </div>
                   <p className="text-muted-foreground mt-1">
-                    กรุณากรอกวันเวลาและจำนวนเงินที่โอน
-                    เพื่อให้ทีมงานตรวจสอบเร็วขึ้น
+                    กรุณากรอกวัน เวลา และจำนวนเงินที่โอน (ตามเวลาไทย)
+                    จากนั้นรอแอดมินตรวจสอบและยืนยันการโอน
                   </p>
                 </div>
 

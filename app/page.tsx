@@ -5,6 +5,13 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ChevronRight,
   Trophy,
   Users,
@@ -18,6 +25,7 @@ import {
   BadgeCheck,
   Ticket,
   Heart,
+  Megaphone,
 } from "lucide-react";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
@@ -117,15 +125,100 @@ function RotatingCards() {
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const id = setTimeout(() => setIsLoading(false), 1000);
+    const id = setTimeout(() => {
+      setIsLoading(false);
+      setAnnouncementOpen(true);
+    }, 1000);
     return () => clearTimeout(id);
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
+      <Dialog open={announcementOpen} onOpenChange={setAnnouncementOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              ประกาศสำคัญ
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              โปรดอ่านรายละเอียดก่อนทำการใช้งานระบบจองคิว
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-foreground">
+            <div className="border-b pb-2">
+              <p className="font-bold">📄 ประกาศสำคัญ</p>
+              <p>
+                ร้านดำเนินกิจการในนาม{" "}
+                <span className="font-semibold text-primary">
+                  บริษัทนิติบุคคล
+                </span>{" "}
+                และดำเนินการด้านภาษีอย่างถูกต้อง
+              </p>
+              <p>
+                ลูกค้าจะได้รับช่องทางการชำระเงินเป็น{" "}
+                <span className="font-bold underline">บัญชีบริษัทเท่านั้น</span>
+              </p>
+              <p className="text-destructive font-medium">
+                ⛔ ร้านไม่มีนโยบายให้โอนเข้าบัญชีส่วนตัวในทุกกรณี
+              </p>
+              <p className="text-xs italic text-muted-foreground mt-1 underline">
+                🔎 หากมีผู้แอบอ้าง กรุณาตรวจสอบกับ LINE @yji_ticket
+                ก่อนโอนทุกครั้ง
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="font-semibold">📢 โปรดอ่านก่อนโอนมัดจำ</p>
+              <p className="text-xs italic">
+                ✨ เงื่อนไขอาจยืดหยุ่นได้ตามดุลพินิจของเจ้าของร้าน
+                เพื่อความเป็นธรรมแก่ทุกฝ่าย
+              </p>
+
+              <div className="bg-muted/50 p-3 rounded-md space-y-2">
+                <p className="font-medium">🎯 รูปแบบการกด & ความเข้าใจตรงกัน</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>
+                    ร้านกดแบบ 1 : 1 (ลูกค้า 1 คิว = ลูกทีม 1 คน){" "}
+                    <span className="text-muted-foreground">
+                      ยกเว้น งานรันคิว
+                    </span>
+                  </li>
+                  <li>
+                    <span className="font-semibold">ได้คิว ≠ ได้บัตร 100%</span>{" "}
+                    ร้านกดมือ ไม่ใช้บอท ผลขึ้นกับระบบและจังหวะหน้างาน
+                  </li>
+                  <li>ร้านไม่การันตีที่นั่ง แต่จะพยายามเต็มที่ทุกงาน 💪</li>
+                  <li>
+                    หากไม่สะดวกใจกับเงื่อนไข
+                    สามารถข้ามร้านได้เพื่อความสบายใจของทั้งสองฝ่าย 💖
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground pt-2">
+              *ปิดประกาศนี้ได้ทันทีเมื่ออ่านเสร็จ
+              และสามารถกลับมาอ่านใหม่ได้ในภายหลัง*
+            </p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setAnnouncementOpen(false)}>รับทราบ</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <div className="fixed bottom-5 right-5 z-40">
+        <div className="absolute inset-0 blur-xl bg-gradient-to-r from-primary/40 via-orange-400/50 to-primary/40 rounded-full opacity-60 animate-pulse" />
+        <Button
+          className="relative h-17 w-17 rounded-full border-3 bg-amber-100/90 hover:bg-amber-200 text-amber-600 shadow-2xl flex items-center justify-center  animate-bounce hover:animate-none"
+          onClick={() => setAnnouncementOpen(true)}
+        >
+          <Megaphone className="size-10" />
+        </Button>
+      </div>
       {isLoading && <Loading />}
       {/* Hero Section */}
       <section
