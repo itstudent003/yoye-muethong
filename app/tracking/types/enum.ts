@@ -12,6 +12,7 @@ export enum TrackingStatus {
   WAIT_REFUND = "รอคืนเงิน",
   REFUNDED = "คืนเงินเรียบร้อย",
   DONE = "ดำเนินการเสร็จสมบูรณ์",
+  CANCEL = "ยกเลิกคิว",
 }
 
 type StatusMetadata = {
@@ -64,5 +65,9 @@ export const STATUS_METADATA: Record<TrackingStatus, StatusMetadata> = {
   [TrackingStatus.DONE]: {
     description: "จบงาน บัตรส่งถึงมือ",
     colorClass: "bg-emerald-100 text-emerald-800",
+  },
+  [TrackingStatus.CANCEL]: {
+    description: "ยกเลิกคิว",
+    colorClass: "bg-rose-100 text-rose-700",
   },
 };

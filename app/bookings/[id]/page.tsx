@@ -453,7 +453,7 @@ export default function BookingDetailPage() {
             <Card className="p-5 space-y-4">
               <div className="flex items-center gap-2">
                 <CreditCard className="size-5 text-primary" />
-                <h3 className="text-base font-bold">วิธีการชำระค่าบัตร</h3>
+                <h3 className="text-base font-bold">วิธีการชำระ</h3>
               </div>
               <RadioGroup
                 value={paymentMethod}

@@ -35,6 +35,7 @@ type TrackingRow = {
   zone: string;
   status: TrackingStatus;
   paymentDeadline?: Date;
+  totalPrice: number;
 };
 
 const sampleConcerts = [
@@ -77,6 +78,8 @@ const mockTracking: readonly TrackingRow[] = [
       paymentDeadline.setDate(now.getDate() + 5);
     }
 
+    const price = status === TrackingStatus.WAIT_SERVICE_FEE ? 500 : 4500;
+
     return {
       bookingId: `YJI-STATUS-${index + 1}`,
       concertName: sampleConcerts[index % sampleConcerts.length],
@@ -84,6 +87,7 @@ const mockTracking: readonly TrackingRow[] = [
       zone: sampleZones[index % sampleZones.length],
       status,
       paymentDeadline,
+      totalPrice: price,
     };
   }),
   ...[2, 1].map((daysAway, idx) => {
@@ -96,6 +100,7 @@ const mockTracking: readonly TrackingRow[] = [
       zone: sampleZones[(idx + 2) % sampleZones.length],
       status: TrackingStatus.WAIT_FULL_PAYMENT,
       paymentDeadline: deadline,
+      totalPrice: 4500,
     } satisfies TrackingRow;
   }),
 ];
@@ -270,13 +275,6 @@ export default function TrackingPage() {
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {urgentPayments.map((row) => {
-                const now = new Date();
-                const daysUntilDeadline = row.paymentDeadline
-                  ? Math.ceil(
-                      (row.paymentDeadline.getTime() - now.getTime()) /
-                        (1000 * 60 * 60 * 24),
-                    )
-                  : 0;
                 const formattedDeadline = row.paymentDeadline
                   ? new Intl.DateTimeFormat("th-TH", {
                       dateStyle: "long",
@@ -286,49 +284,53 @@ export default function TrackingPage() {
                 return (
                   <Card
                     key={row.bookingId}
-                    className="py-3 px-3 relative flex-shrink-0 w-full sm:w-[400px] overflow-hidden border-2 border-amber-500 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 shadow-lg shadow-amber-500/20 snap-start"
+                    className="py-4 px-4 relative flex-shrink-0 w-full sm:w-[380px] overflow-hidden border-2 border-amber-500 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 shadow-lg shadow-amber-500/20 snap-start"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 via-orange-400/10 to-amber-400/10 animate-gradient-slow" />
-                    <div className="relative space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 size-10 rounded-full bg-amber-500 flex items-center justify-center shadow-md">
-                          <CreditCard className="size-5 text-white" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-lg font-black text-amber-900">
-                              {row.status === TrackingStatus.WAIT_SERVICE_FEE
-                                ? "โปรดชำระค่ากดบัตร"
-                                : `อีก ${daysUntilDeadline} วัน โปรดชำระเงิน`}
-                            </h3>
-                            <span className="text-xs font-semibold text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full">
-                              {row.bookingId}
-                            </span>
+                    <div className="relative flex flex-col h-full justify-between space-y-4">
+                      {/* Topic: Concert Name */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-shrink-0 size-8 rounded-full bg-amber-500 flex items-center justify-center shadow-md">
+                            <CreditCard className="size-4 text-white" />
                           </div>
-                          <p className="text-sm text-amber-800 font-medium">
-                            {row.status === TrackingStatus.WAIT_SERVICE_FEE
-                              ? `กรุณาชำระค่ากดบัตรภายในวันที่ ${formattedDeadline}`
-                              : `โปรดชำระเงินค่าบัตรภายในวันที่ ${formattedDeadline}`}
+                          <span className="text-amber-500 font-bold ">
+                            โปรดชำระค่าบัตร
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-black text-amber-900 ">
+                          {row.concertName}
+                        </h3>
+                      </div>
+
+                      {/* Info Grid: Date & Price */}
+                      <div className="grid grid-cols-2 gap-3 border-t border-amber-500/20 pt-3">
+                        <div>
+                          <p className="text-[10px] text-amber-800/70 font-medium">
+                            ภายในวันที่
                           </p>
-                          <p className="text-sm text-amber-700">
-                            งาน:{" "}
-                            <span className="font-semibold">
-                              {row.concertName}
-                            </span>
+                          <p className="text-sm font-bold text-amber-900">
+                            {formattedDeadline}
                           </p>
-                          <p className="text-xs text-amber-600">
-                            {row.showTime} · โซน {row.zone}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-amber-800/70 font-medium">
+                            ยอดที่ต้องชำระ
+                          </p>
+                          <p className="text-xl font-black text-amber-600">
+                            ฿{row.totalPrice.toLocaleString()}
                           </p>
                         </div>
                       </div>
+
+                      {/* Pay Button */}
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="w-full gap-1.5 btn-glow-border rounded-xl font-semibold text-foreground"
+                        className="w-full gap-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md shadow-amber-500/20"
                         asChild
                       >
                         <Link href="/bookings">
-                          <CreditCard className="size-3.5" />
+                          <CreditCard className="size-4" />
                           ชำระเงินทันที
                         </Link>
                       </Button>

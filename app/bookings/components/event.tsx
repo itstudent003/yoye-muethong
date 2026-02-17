@@ -40,8 +40,6 @@ export default function Event({ onBack, onSelect }: EventProps) {
       <div className="max-w-6xl mx-auto space-y-3">
         <StepBooking currentStep={1} />
 
-        <BackStep onBack={onBack} />
-
         {/* Search Bar */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
