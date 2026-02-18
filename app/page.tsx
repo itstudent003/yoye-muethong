@@ -210,28 +210,28 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-      <div className="fixed bottom-5 right-5 z-40">
+      <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-40">
         <div className="absolute inset-0 blur-xl bg-gradient-to-r from-primary/40 via-orange-400/50 to-primary/40 rounded-full opacity-60 animate-pulse" />
         <Button
-          className="relative h-17 w-17 rounded-full border-3 bg-amber-100/90 hover:bg-amber-200 text-amber-600 shadow-2xl flex items-center justify-center  animate-bounce hover:animate-none"
+          className="relative h-14 w-14 md:h-20 md:w-20 rounded-full border-2 md:border-3 bg-amber-100/90 hover:bg-amber-200 text-amber-600 shadow-2xl flex items-center justify-center animate-bounce hover:animate-none"
           onClick={() => setAnnouncementOpen(true)}
         >
-          <Megaphone className="size-10" />
+          <Megaphone className="size-6 md:size-10" />
         </Button>
       </div>
       {isLoading && <Loading />}
       {/* Hero Section */}
       <section
         id="home"
-        className="relative h-screen pt-10 pb-16 px-4 overflow-hidden flex items-center"
+        className="relative min-h-[100dvh] pt-10 pb-16 px-4 overflow-hidden flex items-center"
       >
         {/* Background decorative blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+          <div className="absolute -top-24 -right-24 h-64 w-64 md:h-96 md:w-96 rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-64 w-64 md:h-96 md:w-96 rounded-full bg-accent/10 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto text-center space-y-12">
+        <div className="max-w-6xl mx-auto text-center space-y-8 md:space-y-12">
           <motion.div
             className="z-10"
             initial={{ opacity: 0, y: -20 }}
@@ -243,7 +243,7 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.4 }}
-              className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold mb-6"
+              className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-4 md:mb-6"
             >
               <div className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -257,11 +257,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-5xl md:text-6xl font-black text-foreground leading-tight mb-6"
+              className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground leading-tight mb-4 md:mb-6"
             >
               จองบัตรคอนเสิร์ต <br />
               <span className="text-transparent bg-clip-text bg-linear-to-bl from-gradient-start to-gradient-end">
-                เพิ่มโอกาสครอบครองบัตรที่ต้องการ
+                และเพิ่มโอกาสที่คุณจะได้บัตร
               </span>
             </motion.h1>
 
@@ -270,7 +270,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
+              className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4"
             >
               เราช่วยคุณจองคิวและกดบัตรงานแสดงที่คุณรัก
               ด้วยทีมงานมืออาชีพและระบบแจ้งเตือนผ่าน LINE ทันทีทุกความเคลื่อนไหว
@@ -286,40 +286,44 @@ export default function Home() {
               <motion.div
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative group"
+                className="relative group w-full max-w-[280px] md:max-w-none"
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-primary to-orange-400 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 animate-pulse transition duration-300" />
                 <Button
                   size="lg"
-                  className="relative h-20 px-12 rounded-3xl text-2xl font-bold bg-gradient-to-r from-primary to-orange-500 hover:from-orange-500 hover:to-primary text-white shadow-2xl shadow-primary/50 transition-all duration-300"
+                  className="shadow-2xl shadow-primary relative h-16 md:h-20 md:w-auto px-8 md:px-12 rounded-2xl md:rounded-3xl text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-orange-500 hover:from-orange-500 hover:to-primary text-white transition-all duration-300"
                   onClick={() => router.push("/bookings")}
                 >
                   จองคิวตอนนี้
-                  <ChevronRight className="ml-2 h-7 w-7" />
+                  <ChevronRight className="ml-2 h-6 w-6 md:h-7 md:w-7" />
                 </Button>
               </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Cards section */}
-          <div>
+          {/* Cards section - Desktop Only */}
+          <div className="hidden md:block px-2">
             <RotatingCards />
           </div>
         </div>
       </section>
 
+      {/* Cards Section - Mobile Only */}
+      <section className="md:hidden py-12 px-4 relative z-20 -mt-8">
+        <RotatingCards />
+      </section>
+
       {/* Trust Section */}
-      <section className="relative py-20 px-4 bg-primary/10 overflow-hidden">
+      <section className="relative py-12 md:py-20 px-4 bg-primary/10 overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 h-64 w-[600px] rounded-full bg-primary/5 blur-3xl" />
         </div>
-        <div className="max-w-5xl mx-auto text-center mb-14">
+        <div className="max-w-5xl mx-auto text-center mb-8 md:mb-14">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="text-sm font-bold uppercase tracking-widest text-primary mb-3"
+            className="text-xs md:text-sm font-bold uppercase tracking-widest text-primary mb-2 md:mb-3"
           >
             Why Trust Us
           </motion.p>
@@ -364,20 +368,20 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.5 }}
               whileHover={{ y: -8, scale: 1.02 }}
-              className="group rounded-3xl border border-border/60 bg-white p-8 shadow-lg hover:shadow-xl transition-shadow"
+              className="group rounded-3xl border border-border/60 bg-white p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow"
             >
               <div
-                className={`w-14 h-14 rounded-2xl ${item.bg} flex items-center justify-center mb-5`}
+                className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${item.bg} flex items-center justify-center mb-4 md:mb-5`}
               >
                 <item.icon
-                  className={`w-7 h-7 ${item.color}`}
+                  className={`w-6 h-6 md:w-7 md:h-7 ${item.color}`}
                   strokeWidth={2}
                 />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
+              <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
                 {item.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                 {item.desc}
               </p>
             </motion.div>
@@ -386,8 +390,8 @@ export default function Home() {
       </section>
 
       {/* Summary Checklist */}
-      <section className="relative py-20 px-4 bg-primary/10 overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center mb-14">
+      <section className="relative py-12 md:py-20 px-4 bg-primary/10 overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center mb-8 md:mb-14">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -402,12 +406,12 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="text-muted-foreground text-lg"
+            className="text-muted-foreground text-base md:text-lg"
           >
             ทุกอย่างที่คุณต้องการ ครบจบในที่เดียว
           </motion.p>
         </div>
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-3 md:gap-4">
           {[
             { text: "รันคิว 500+ จอ", icon: Monitor },
             { text: "ทีมกดมากกว่า 25 คน", icon: UsersRound },
@@ -423,7 +427,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
               whileHover={{ scale: 1.03 }}
-              className="flex items-center gap-4 rounded-2xl border border-border/60 bg-white px-5 py-4 shadow-sm hover:shadow-md transition-shadow"
+              className="flex items-center gap-3 md:gap-4 rounded-2xl border border-border/60 bg-white px-4 md:px-5 py-3 md:py-4 shadow-sm hover:shadow-md transition-shadow"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -434,24 +438,26 @@ export default function Home() {
                   type: "spring",
                   stiffness: 300,
                 }}
-                className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0"
+                className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0"
               >
-                <item.icon className="w-5 h-5 text-green-600" />
+                <item.icon className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
               </motion.div>
-              <span className="text-foreground font-semibold">{item.text}</span>
+              <span className="text-sm md:text-base text-foreground font-semibold">
+                {item.text}
+              </span>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Pro Team Section */}
-      <section className="relative h-screen py-24 px-4 sm:px-6 overflow-hidden flex items-center">
+      <section className="relative min-h-[60vh] md:min-h-screen py-16 md:py-24 px-4 sm:px-6 overflow-hidden flex items-center">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-blue-100/40 blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -top-32 -right-32 h-64 w-64 md:h-96 md:w-96 rounded-full bg-blue-100/40 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 h-64 w-64 md:h-96 md:w-96 rounded-full bg-primary/5 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+        <div className="max-w-6xl mx-auto grid gap-10 md:gap-16 lg:grid-cols-2 items-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -459,7 +465,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="relative flex items-center justify-center order-2 lg:order-1"
           >
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-5 md:grid-cols-6 gap-2 md:gap-3">
               {Array.from({ length: 30 }).map((_, i) => (
                 <motion.div
                   key={`person-${i}`}
@@ -469,7 +475,7 @@ export default function Home() {
                   transition={{ delay: 0.05 + i * 0.03, duration: 0.3 }}
                   className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-200/60 flex items-center justify-center shadow-sm"
                 >
-                  <UsersRound className="w-5 h-5 text-blue-400" />
+                  <UsersRound className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
                 </motion.div>
               ))}
             </div>
@@ -479,9 +485,9 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="order-1 lg:order-2"
+            className="order-1 lg:order-2 text-center lg:text-left"
           >
-            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-4">
               <UsersRound className="w-4 h-4" /> ทีมกดมืออาชีพ
             </span>
             <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
@@ -490,11 +496,11 @@ export default function Home() {
                 มากกว่า 25 คน
               </span>
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">
               แบ่งหน้าที่ชัดเจน ไม่รับคิวซ้อน ไม่รับคิวเกิน กด 1:1
               มีแอดมินคอยตอบตลอดเวลา
             </p>
-            <div className="space-y-3">
+            <div className="space-y-3 inline-block text-left">
               {[
                 { icon: Eye, text: "เฝ้ารอหลุดจนกว่าบัตรจะหมดจริง" },
                 { icon: Heart, text: "ถ้ายังมีโอกาส เรายังไม่หยุดกด" },
@@ -508,10 +514,10 @@ export default function Home() {
                   transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                    <item.icon className="w-4 h-4 text-blue-500" />
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
                   </div>
-                  <span className="text-foreground font-medium">
+                  <span className="text-sm md:text-base text-foreground font-medium">
                     {item.text}
                   </span>
                 </motion.div>
@@ -522,20 +528,21 @@ export default function Home() {
       </section>
 
       {/* Queue Volume Section */}
-      <section className="relative h-screen py-24 px-4 sm:px-6 overflow-hidden flex items-center">
+      <section className="relative min-h-[60vh] md:min-h-screen py-16 md:py-24 px-4 sm:px-6 overflow-hidden flex items-center">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-orange-100/40 blur-3xl" />
-          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -bottom-32 -right-32 h-64 w-64 md:h-96 md:w-96 rounded-full bg-orange-100/40 blur-3xl" />
+          <div className="absolute -top-32 -left-32 h-64 w-64 md:h-96 md:w-96 rounded-full bg-primary/5 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+        <div className="max-w-6xl mx-auto grid gap-10 md:gap-16 lg:grid-cols-2 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="text-center lg:text-left"
           >
-            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold mb-4">
+            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-4">
               <Monitor className="w-4 h-4" /> ระบบรันคิวจำนวนมาก
             </span>
             <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">
@@ -544,20 +551,20 @@ export default function Home() {
                 500+ จอ
               </span>
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">
               เพิ่มโอกาสเข้าหน้าซื้อเร็วกว่าใช้เครื่องเดียวหลายเท่า
               ด้วยระบบรันคิวพร้อมกันทั้งร้าน ไม่พลาดทุกรอบการขาย
             </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Monitor className="w-4 h-4 text-orange-500" />
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+              <div className="flex items-center gap-2 text-sm md:text-base font-semibold text-foreground">
+                <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Monitor className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
                 </div>
                 500+ จอพร้อมกัน
               </div>
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <BadgeCheck className="w-4 h-4 text-green-500" />
+              <div className="flex items-center gap-2 text-sm md:text-base font-semibold text-foreground">
+                <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <BadgeCheck className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
                 </div>
                 เพิ่มโอกาสได้บัตรสูงขึ้น
               </div>
@@ -570,7 +577,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative flex items-center justify-center"
           >
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 md:gap-3">
               {Array.from({ length: 20 }).map((_, i) => (
                 <motion.div
                   key={`screen-${i}`}
@@ -578,9 +585,9 @@ export default function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
-                  className="w-14 h-10 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
+                  className="w-12 h-8 md:w-16 md:h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-200/60 flex items-center justify-center shadow-sm"
                 >
-                  <Monitor className="w-5 h-5 text-orange-400" />
+                  <Monitor className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
                 </motion.div>
               ))}
             </div>
@@ -589,7 +596,7 @@ export default function Home() {
       </section>
 
       {/* Partner Section */}
-      <section className="py-4 px-4">
+      <section className="py-12 md:py-20 px-4">
         <style jsx>{`
           @keyframes marquee {
             from {

@@ -134,9 +134,6 @@ export default function Navbar() {
           })}
         </div>
       </nav>
-
-      {/* Mobile Bottom Padding */}
-      <div className="md:hidden h-16" />
     </>
   );
 }
